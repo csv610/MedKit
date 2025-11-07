@@ -9,6 +9,8 @@ A comprehensive **medical information and reference system** powered by Google's
 ## Features
 
 ### 🏥 Medical Reference
+[View detailed documentation →](docs/MEDICAL_REFERENCE.md)
+
 - **Disease Information** - Comprehensive disease definitions, symptoms, causes, and treatments
 - **Drug Database** - Medicine information including dosages, side effects, and contraindications
 - **Drug Interactions** - Drug-drug, drug-disease, and drug-food interaction checking
@@ -19,6 +21,8 @@ A comprehensive **medical information and reference system** powered by Google's
 - **Herbal Medicine** - Evidence-based information on herbal remedies
 
 ### 🔍 Diagnostic Tools
+[View detailed documentation →](docs/DIAGNOSTIC_TOOLS.md)
+
 - **Medical Tests** - Information about diagnostic tests and their purposes
 - **Test Devices** - Medical diagnostic equipment and devices
 - **Physical Examinations** - Comprehensive guides for 27+ body systems and physical exams
@@ -27,10 +31,22 @@ A comprehensive **medical information and reference system** powered by Google's
 - **Synthetic Case Reports** - Generated medical case studies for learning
 
 ### 🧠 Mental Health
+[View detailed documentation →](docs/MENTAL_HEALTH.md)
+
 - **Mental Health Assessments** - Structured screening tools and assessments
 - **Mental Health Chat** - Conversational mental health support interface
 - **SANE Interview** - Structured clinical interview tool
 - **Symptom Detection Chat** - Interactive symptom assessment
+
+### 💊 Drug Database
+[View detailed documentation →](docs/DRUG_DATABASE.md)
+
+- **Medicine Information** - Drug details, dosing, side effects
+- **Drug-Drug Interactions** - Check interactions between medications
+- **Drug-Disease Interactions** - Safety in specific conditions
+- **Drug-Food Interactions** - Dietary considerations
+- **Similar Drugs** - Find alternative medications
+- **Drug Comparison** - Compare multiple medications side-by-side
 
 ### 🛠️ Utilities
 - **Local Caching** - LMDB-based caching for offline access and performance
@@ -188,7 +204,20 @@ config = MedKitConfig(api_key="your-api-key")
 
 ## Documentation
 
-Comprehensive documentation is available in the [docs/](docs/) directory.
+Comprehensive documentation is available for all features and modules.
+
+### 📚 Documentation Index
+
+| Section | Description | Link |
+|---------|-------------|------|
+| **Medical Reference** | Disease info, anatomy, specialties, implants, herbal medicine | [📖 View](docs/MEDICAL_REFERENCE.md) |
+| **Drug Database** | Medicine info, drug interactions, dosing, alternatives | [📖 View](docs/DRUG_DATABASE.md) |
+| **Diagnostic Tools** | Medical tests, devices, physical exams, decision guides | [📖 View](docs/DIAGNOSTIC_TOOLS.md) |
+| **Mental Health** | Assessments, chat, SANE interview, crisis resources | [📖 View](docs/MENTAL_HEALTH.md) |
+| **CLI Tools** | Command-line interfaces for all modules | [📖 View](cli/README.md) |
+| **API Reference** | Complete API documentation | [📖 View](docs/api/) |
+| **Tutorials** | Step-by-step usage guides | [📖 View](docs/tutorials.rst) |
+| **Development** | Setup for developers | [📖 View](docs/development_setup.rst) |
 
 ### Building Documentation Locally
 
@@ -204,9 +233,9 @@ Then open `docs/_build/html/index.html` in your browser.
 ### Online Documentation
 
 - [ReadTheDocs](https://medkit.readthedocs.io) (coming soon)
-- [API Reference](docs/api/)
-- [Tutorials](docs/tutorials.rst)
-- [Development Setup](docs/development_setup.rst)
+- API Reference: Full module and function documentation
+- Tutorials: Practical examples and use cases
+- Development Setup: Instructions for contributors
 
 ## Usage Examples
 
