@@ -1,0 +1,98 @@
+# MedKit Local Configuration and Data
+# User-specific logs and data (stored in home directory)
+.medkit/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv
+venv/
+venv.bak
+medkitenv
+medkitenv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.sublime-project
+.sublime-workspace
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Log files (old style - now stored in ~/.medkit/logs/)
+*.log
+*.log.*
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Development
+.vagrant/
+.venv/
+
+# Package distribution
+build/
+dist/
+*.egg-info/
+
+# Cache
+.cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Generated files and directories
+outputs/
+logs/
+*.pyc
+.pytest_cache/
+medkit/*/outputs/
+medkit/*/logs/

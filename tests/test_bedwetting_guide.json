@@ -1,0 +1,83 @@
+{
+  "guide_name": "Bed Wetting Assessment Guide",
+  "primary_symptom": "Bed Wetting",
+  "secondary_symptoms": "nighttime incontinence",
+  "age_groups_covered": "pediatric",
+  "scope": "Assessment for bed wetting",
+  "warning_signs": "blood in urine, fever",
+  "emergency_indicators": "severe pain",
+  "start_node_id": "q1",
+  "decision_nodes": {
+    "q1": {
+      "node_id": "q1",
+      "question": "Does child stay dry during the day?",
+      "yes_node_id": "q2",
+      "no_node_id": "outcome_daytime"
+    },
+    "q2": {
+      "node_id": "q2",
+      "question": "Is this first time bed wetting (primary)?",
+      "yes_node_id": "q3",
+      "no_node_id": "outcome_secondary"
+    },
+    "q3": {
+      "node_id": "q3",
+      "question": "Is child under 5 years old?",
+      "yes_node_id": "outcome_developmental",
+      "no_node_id": "q4"
+    },
+    "q4": {
+      "node_id": "q4",
+      "question": "Family history of bed wetting?",
+      "yes_node_id": "outcome_genetic",
+      "no_node_id": "outcome_primary"
+    }
+  },
+  "outcomes": {
+    "outcome_developmental": {
+      "outcome_id": "outcome_developmental",
+      "severity_level": "mild",
+      "urgency": "self-care",
+      "recommendation": "Developmentally normal, no intervention",
+      "possible_diagnoses": "Developmental enuresis",
+      "home_care_advice": "Waterproof mattress",
+      "warning_signs": "daytime wetting"
+    },
+    "outcome_genetic": {
+      "outcome_id": "outcome_genetic",
+      "severity_level": "mild",
+      "urgency": "routine",
+      "recommendation": "Family history common, behavioral approaches",
+      "possible_diagnoses": "Genetic nocturnal enuresis",
+      "home_care_advice": "Moisture alarm",
+      "warning_signs": "dysuria"
+    },
+    "outcome_primary": {
+      "outcome_id": "outcome_primary",
+      "severity_level": "mild",
+      "urgency": "routine",
+      "recommendation": "Behavioral management recommended",
+      "possible_diagnoses": "Primary nocturnal enuresis",
+      "home_care_advice": "Bedtime routine",
+      "warning_signs": "fever"
+    },
+    "outcome_secondary": {
+      "outcome_id": "outcome_secondary",
+      "severity_level": "moderate",
+      "urgency": "urgent-care",
+      "recommendation": "Medical evaluation recommended",
+      "possible_diagnoses": "Secondary enuresis, UTI",
+      "home_care_advice": "Monitor symptoms",
+      "warning_signs": "fever, dysuria"
+    },
+    "outcome_daytime": {
+      "outcome_id": "outcome_daytime",
+      "severity_level": "moderate",
+      "urgency": "urgent-care",
+      "recommendation": "Urological evaluation needed",
+      "possible_diagnoses": "Daytime incontinence, UTI",
+      "home_care_advice": "Regular toilet schedule",
+      "warning_signs": "dysuria, fever"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+bdominal Examination
+Blood Vessels
+Breast and Axillae Examination
+Breast Examination
+Cardiovascular Examination
+Cranial Nerve Examination
+Cranial Nerve Examination
+Ear Examination
+Endocrine System Examination
+Eye Examination
+Eye Fundus Examination
+Eye Fundus Examination
+Eye Movement and Pupillary Reflex Examination
+Face Examination
+Feet Examination
+Female Genital Examination
+Gait and Balance Assessment
+Gait Observation and Coordination Tests
+General Physical Examination
+Geriatric Examination
+Groin Examination
+Growth and Development Examination
+Hair Examination
+Hands Examination
+Hands Examination
+Head Examination
+Head and Scalp Examination
+Hernia Examination
+Joint Examination
+Lower Limb Examination
+Lymphatic System Examination
+Male Genital Examination
+Mental Status Examination
+Mouth and Throat Examination
+Musculoskeletal Examination
+Nail Examination
+Neck Examination
+Neck Examination
+Nose Examination
+Nutritional Assessment
+Oral Cavity and Dental Examination
+Pelvic Examination
+Peripheral Vascular Examination
+Posture and Body Alignment Assessment
+Prostate Examination
+Reflexes Examination
+Respiratory Examination
+Sensory System Examination
+Skin Examination
+Spine and Back Examination
+Thyroid Examination
+Upper Limb Examination
+Vital Signs Assessment

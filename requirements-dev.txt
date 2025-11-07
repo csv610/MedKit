@@ -1,0 +1,22 @@
+# Development dependencies
+-r requirements.txt
+
+# Testing
+pytest>=7.0
+pytest-cov>=4.0
+pytest-xdist>=3.0
+
+# Code Quality
+black>=22.0
+flake8>=5.0
+mypy>=0.990
+isort>=5.11.0
+
+# Documentation
+sphinx>=5.0
+sphinx-rtd-theme>=1.0
+sphinx-autodoc-typehints>=1.18.0
+
+# Development utilities
+ipython>=8.0
+ipdb>=0.13.0
