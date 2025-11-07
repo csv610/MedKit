@@ -52,7 +52,7 @@ A comprehensive **medical information and reference system** powered by Google's
 ## Features
 
 ### 🏥 Medical Reference
-[View detailed documentation →](docs/MEDICAL_REFERENCE.md)
+[View detailed documentation →](docs/medical_reference/)
 
 - **Disease Information** - Comprehensive disease definitions, symptoms, causes, and treatments
 - **Medical Anatomy** - Detailed anatomical structures and physiological functions
@@ -62,7 +62,7 @@ A comprehensive **medical information and reference system** powered by Google's
 - **Herbal Medicine** - Evidence-based information on herbal remedies
 
 ### 💊 Drug Database
-[View detailed documentation →](docs/DRUG_DATABASE.md)
+[View detailed documentation →](docs/drug_database/)
 
 - **Medicine Information** - Drug details, dosing, side effects, and contraindications
 - **Drug-Drug Interactions** - Check interactions between medications
@@ -72,7 +72,7 @@ A comprehensive **medical information and reference system** powered by Google's
 - **Drug Comparison** - Compare multiple medications side-by-side
 
 ### 🔍 Diagnostic Tools
-[View detailed documentation →](docs/DIAGNOSTIC_TOOLS.md)
+[View detailed documentation →](docs/diagnostic_tools/)
 
 - **Medical Tests** - Information about diagnostic tests and their purposes
 - **Test Devices** - Medical diagnostic equipment and devices
@@ -82,7 +82,7 @@ A comprehensive **medical information and reference system** powered by Google's
 - **Synthetic Case Reports** - Generated medical case studies for learning
 
 ### 🧠 Mental Health
-[View detailed documentation →](docs/MENTAL_HEALTH.md)
+[View detailed documentation →](docs/mental_health/)
 
 - **Mental Health Assessments** - Structured screening tools and assessments
 - **Mental Health Chat** - Conversational mental health support interface
@@ -251,10 +251,10 @@ Comprehensive documentation is available for all features and modules.
 
 | Section | Description | Link |
 |---------|-------------|------|
-| **Medical Reference** | Disease info, anatomy, specialties, implants, herbal medicine | [📖 View](docs/MEDICAL_REFERENCE.md) |
-| **Drug Database** | Medicine info, drug interactions, dosing, alternatives | [📖 View](docs/DRUG_DATABASE.md) |
-| **Diagnostic Tools** | Medical tests, devices, physical exams, decision guides | [📖 View](docs/DIAGNOSTIC_TOOLS.md) |
-| **Mental Health** | Assessments, chat, SANE interview, crisis resources | [📖 View](docs/MENTAL_HEALTH.md) |
+| **Medical Reference** | Disease info, anatomy, specialties, implants, herbal medicine | [📖 View](docs/medical_reference/) |
+| **Drug Database** | Medicine info, drug interactions, dosing, alternatives | [📖 View](docs/drug_database/) |
+| **Diagnostic Tools** | Medical tests, devices, physical exams, decision guides | [📖 View](docs/diagnostic_tools/) |
+| **Mental Health** | Assessments, chat, SANE interview, crisis resources | [📖 View](docs/mental_health/) |
 | **CLI Tools** | Command-line interfaces for all modules | [📖 View](cli/README.md) |
 | **API Reference** | Complete API documentation | [📖 View](docs/api/) |
 | **Tutorials** | Step-by-step usage guides | [📖 View](docs/tutorials.rst) |
