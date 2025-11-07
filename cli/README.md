@@ -2,7 +2,7 @@
 
 This directory contains command-line interfaces for querying MedKit medical information modules. These tools provide easy access to comprehensive medical knowledge through the terminal.
 
-## Available CLI Tools (13 Tools)
+## Available CLI Tools (15 Tools)
 
 ### 1. Disease Information
 ```bash
@@ -80,7 +80,9 @@ python cli/cli_medicine_info.py aspirin
 python cli/cli_medicine_info.py ibuprofen --interactions
 ```
 
-### 7. Drug-Drug Interaction Checker
+### 7. Drug Interactions (3 Types)
+
+#### 7a. Drug-Drug Interaction Checker
 ```bash
 python cli/cli_drug_interaction.py <drug1> <drug2> [--severity] [--verbose]
 ```
@@ -92,7 +94,33 @@ python cli/cli_drug_interaction.py aspirin ibuprofen
 python cli/cli_drug_interaction.py warfarin aspirin --severity
 ```
 
-### 8. Medical Anatomy
+#### 7b. Drug-Disease Interaction Checker
+```bash
+python cli/cli_drug_disease_interaction.py <drug_name> <disease_name> [--output file.json] [--verbose]
+```
+Check safety of medications in specific medical conditions.
+
+**Example:**
+```bash
+python cli/cli_drug_disease_interaction.py ibuprofen "kidney disease"
+python cli/cli_drug_disease_interaction.py metformin diabetes --verbose
+python cli/cli_drug_disease_interaction.py "ACE inhibitor" "high potassium" --output interaction.json
+```
+
+#### 7c. Drug-Food Interaction Checker
+```bash
+python cli/cli_drug_food_interaction.py <drug_name> <food_name> [--output file.json] [--verbose]
+```
+Check interactions between medications and foods/beverages.
+
+**Example:**
+```bash
+python cli/cli_drug_food_interaction.py warfarin "leafy greens"
+python cli/cli_drug_food_interaction.py statin grapefruit --verbose
+python cli/cli_drug_food_interaction.py metronidazole alcohol --output interaction.json
+```
+
+### 9. Medical Anatomy
 ```bash
 python cli/cli_medical_anatomy.py <body_part> [--functions] [--verbose]
 ```
@@ -104,7 +132,7 @@ python cli/cli_medical_anatomy.py heart
 python cli/cli_medical_anatomy.py brain --functions
 ```
 
-### 9. Medical Dictionary/Terminology
+### 10. Medical Dictionary/Terminology
 ```bash
 python cli/cli_medical_dictionary.py <term> [--synonyms] [--verbose]
 ```
@@ -116,7 +144,7 @@ python cli/cli_medical_dictionary.py hypertension
 python cli/cli_medical_dictionary.py "myocardial infarction" --verbose
 ```
 
-### 10. Medical Specialties
+### 11. Medical Specialties
 ```bash
 python cli/cli_medical_speciality.py <specialty> [--doctors] [--conditions] [--procedures]
 ```
@@ -128,7 +156,7 @@ python cli/cli_medical_speciality.py cardiology
 python cli/cli_medical_speciality.py neurology --conditions
 ```
 
-### 11. Herbal Medicine Information
+### 12. Herbal Medicine Information
 ```bash
 python cli/cli_herbal_info.py <herb_name> [--benefits] [--interactions] [--dosage] [--safety]
 ```
@@ -141,7 +169,7 @@ python cli/cli_herbal_info.py ginger --benefits
 python cli/cli_herbal_info.py echinacea --interactions
 ```
 
-### 12. Mental Health Tools
+### 13. Mental Health Tools
 ```bash
 python cli/cli_mental_health.py [--assessment] [--chat] [--interview] [--anonymous]
 ```
@@ -154,7 +182,7 @@ python cli/cli_mental_health.py --chat
 python cli/cli_mental_health.py --interview
 ```
 
-### 13. Symptom Checker
+### 14. Symptom Checker
 ```bash
 python cli/cli_symptoms_checker.py --symptoms "symptom1,symptom2,..." [--severity] [--duration] [--urgent]
 ```
