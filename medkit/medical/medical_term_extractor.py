@@ -53,6 +53,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from medkit.core.medkit_client import MedKitClient
+from medkit.core.module_config import get_module_config
 
 from medkit.utils.logging_config import setup_logger
 
@@ -170,7 +171,23 @@ class MedicalTermExtractor:
     def __init__(self, config: Optional[Config] = None):
         """Initialize the extractor."""
         self.config = config or Config()
-        self.client = MedKitClient()
+        # Load model name from ModuleConfig
+
+        try:
+
+            module_config = get_module_config("medical_term_extractor")
+
+            model_name = module_config.model_name
+
+        except ValueError:
+
+            # Fallback to default if not registered yet
+
+            model_name = "gemini-1.5-flash"
+
+        
+
+        self.client = MedKitClient(model_name=model_name)
 
     def generate(self, text: str, output_path: Optional[Path] = None) -> MedicalTerms:
         """

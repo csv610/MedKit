@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from medkit.utils.logging_config import setup_logger
 from medkit.core.medkit_client import MedKitClient
+from medkit.core.module_config import get_module_config
 
 logger = setup_logger(__name__, enable_file_handler=False)
 
@@ -21,7 +22,27 @@ class PrescriptionExtractor:
     """Extracts prescription data from an image using MedKitClient."""
 
     def __init__(self, client: Optional[MedKitClient] = None):
-        self.client = client or MedKitClient()
+        # Load model name from ModuleConfig if client not provided
+
+        if client is None:
+
+            try:
+
+                module_config = get_module_config("prescription_extractor")
+
+                model_name = module_config.model_name
+
+            except ValueError:
+
+                # Fallback to default if not registered yet
+
+                model_name = "gemini-1.5-flash"
+
+            client = MedKitClient(model_name=model_name)
+
+        
+
+        self.client = client
 
     def extract(self, image_data: str, mime_type: str = "image/jpeg") -> PrescriptionData:
         logger.info("Extracting prescription data from image.")

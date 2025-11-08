@@ -20,6 +20,7 @@ from pathlib import Path
 # Fix import paths
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from core.medkit_client import MedKitClient
+from core.module_config import get_module_config
 from utils.pydantic_prompt_generator import PromptStyle
 
 
@@ -370,7 +371,16 @@ def generate_llm_assessment(
     if use_medkit:
         try:
             print("\n  ⏳ Connecting to MedKitClient for AI assessment...")
-            client = MedKitClient()
+
+            # Load model name from ModuleConfig
+            try:
+                module_config = get_module_config("exam_musculoskeletal")
+                model_name = module_config.model_name
+            except ValueError:
+                # Fallback to default if not registered yet
+                model_name = "gemini-1.5-flash"
+
+            client = MedKitClient(model_name=model_name)
 
             # Format clinical data for LLM
             clinical_context = f"""

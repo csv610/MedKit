@@ -35,6 +35,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 
 from medkit.core.medkit_client import MedKitClient
+from medkit.core.module_config import get_module_config
 
 from medkit.utils.logging_config import setup_logger
 
@@ -143,7 +144,23 @@ class MedicalSpecialityGenerator:
     def __init__(self, config: Optional[Config] = None):
         """Initialize the generator."""
         self.config = config or Config()
-        self.client = MedKitClient()
+        # Load model name from ModuleConfig
+
+        try:
+
+            module_config = get_module_config("medical_speciality")
+
+            model_name = module_config.model_name
+
+        except ValueError:
+
+            # Fallback to default if not registered yet
+
+            model_name = "gemini-1.5-flash"
+
+        
+
+        self.client = MedKitClient(model_name=model_name)
         self.output_path: Optional[Path] = None
 
     def generate(self, output_path: Optional[Path] = None) -> MedicalSpecialistDatabase:

@@ -61,6 +61,7 @@ logger = setup_logger(__name__)
 
 try:
     from medkit.core.medkit_client import MedKitClient
+    from medkit.core.module_config import get_module_config
 except ImportError as e:
     raise ImportError("MedKitClient not found. Install medkit-client package.") from e
 
@@ -199,7 +200,23 @@ class DiseaseInfoGenerator:
     """
     def __init__(self, config: Optional[Config] = None):
         self.config = config or Config()
-        self.client = MedKitClient()
+        # Load model name from ModuleConfig
+
+        try:
+
+            module_config = get_module_config("disease_info")
+
+            model_name = module_config.model_name
+
+        except ValueError:
+
+            # Fallback to default if not registered yet
+
+            model_name = "gemini-1.5-pro"
+
+        
+
+        self.client = MedKitClient(model_name=model_name)
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize LMDB storage for caching

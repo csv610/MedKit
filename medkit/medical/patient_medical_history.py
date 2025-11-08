@@ -52,6 +52,7 @@ from typing import List, Optional
 from dataclasses import dataclass, field
 from pydantic import BaseModel, Field
 from medkit.core.medkit_client import MedKitClient
+from medkit.core.module_config import get_module_config
 from medkit.diagnostics.exam_specifications import get_exam_specification
 
 from medkit.utils.logging_config import setup_logger
@@ -193,7 +194,23 @@ class PatientMedicalHistoryGenerator:
 
     def __init__(self, config: Optional[Config] = None):
         self.config = config or Config()
-        self.client = MedKitClient()
+        # Load model name from ModuleConfig
+
+        try:
+
+            module_config = get_module_config("patient_medical_history")
+
+            model_name = module_config.model_name
+
+        except ValueError:
+
+            # Fallback to default if not registered yet
+
+            model_name = "gemini-1.5-pro"
+
+        
+
+        self.client = MedKitClient(model_name=model_name)
 
     def generate(self, exam: str, age: int, gender: str, purpose: str = "physical_exam") -> PatientMedicalHistoryQuestions:
         self._validate_inputs(exam, age, gender, purpose)

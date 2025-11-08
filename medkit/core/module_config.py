@@ -332,6 +332,14 @@ class ModuleRegistry:
         category="medical"
     )
 
+    EXAM_MUSCULOSKELETAL = ModuleConfig(
+        module_name="exam_musculoskeletal",
+        module_path="medkit.phyexams.exam_musculoskeletal",
+        model_name="gemini-1.5-flash",
+        description="Musculoskeletal examination and assessment",
+        category="medical"
+    )
+
     # ============================================================================
     # MENTAL HEALTH MODULES
     # ============================================================================

@@ -37,6 +37,7 @@ from pydantic import BaseModel, Field, validator
 from typing import Optional
 
 from medkit.core.medkit_client import MedKitClient
+from medkit.core.module_config import get_module_config
 from medkit.utils.pydantic_prompt_generator import PromptStyle
 from medkit.utils.logging_config import setup_logger
 
@@ -215,7 +216,16 @@ class DrugFoodInteraction:
 
     def __init__(self, config: DrugFoodInteractionConfig):
         self.config = config
-        self.client = MedKitClient()
+
+        # Load model name from ModuleConfig
+        try:
+            module_config = get_module_config("drug_food_interaction")
+            model_name = module_config.model_name
+        except ValueError:
+            # Fallback to default if not registered yet
+            model_name = "gemini-1.5-flash"
+
+        self.client = MedKitClient(model_name=model_name)
 
     def analyze(
         self,
