@@ -43,9 +43,8 @@ from pathlib import Path
 from pydantic import BaseModel, Field, validator
 from typing import Optional
 
-from medkit.core.medkit_client import MedKitClient
+from medkit.core.medkit_client import MedKitClient, MedKitConfig
 from medkit.core.module_config import get_module_config
-from medkit.utils.storage_config import StorageConfig
 from medkit.utils.pydantic_prompt_generator import PromptStyle
 from medkit.utils.logging_config import setup_logger
 
@@ -207,7 +206,7 @@ class MedicinesComparisonResult(BaseModel):
 
 
 @dataclass
-class DrugsComparisonConfig(StorageConfig):
+class DrugsComparisonConfig(MedKitConfig):
     """
     Configuration for drugs_comparison.
 

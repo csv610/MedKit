@@ -63,10 +63,9 @@ logger = setup_logger(__name__)
 
 # Logging will be configured based on verbosity level in __init__
 
-from medkit.utils.storage_config import StorageConfig
 
 try:
-    from medkit.core.medkit_client import MedKitClient
+    from medkit.core.medkit_client import MedKitClient, MedKitConfig
     from medkit.core.module_config import get_module_config
 except ImportError as e:
     raise ImportError("MedKitClient not found. Install medkit-client package.") from e
@@ -76,11 +75,8 @@ except ImportError as e:
 # ============================================================================ 
 
 @dataclass
-class Config(StorageConfig):
+class Config(MedKitConfig):
     """Configuration for the herbal info generator."""
-    output_dir: Path = field(default_factory=lambda: Path("outputs"))
-    log_file: Path = field(default_factory=lambda: Path(__file__).parent / "logs" / f"{Path(__file__).stem}.log")
-    verbosity: int = 2  # Verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG
 
     def __post_init__(self):
         """Set default db_path if not provided, then validate."""

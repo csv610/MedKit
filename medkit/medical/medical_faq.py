@@ -56,14 +56,13 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from medkit.core.medkit_client import MedKitClient
+from medkit.core.medkit_client import MedKitClient, MedKitConfig
 from medkit.core.module_config import get_module_config
 
 from medkit.utils.logging_config import setup_logger
 
 import hashlib
 from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
-from medkit.utils.storage_config import StorageConfig
 
 # Configure logging
 logger = setup_logger(__name__)
@@ -73,7 +72,7 @@ logger = setup_logger(__name__)
 # ============================================================================
 
 @dataclass
-class Config(StorageConfig):
+class Config(MedKitConfig):
     """Configuration for the FAQ generator."""
     verbose: bool = False
 

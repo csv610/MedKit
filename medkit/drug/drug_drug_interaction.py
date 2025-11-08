@@ -56,11 +56,10 @@ from pathlib import Path
 from pydantic import BaseModel, Field, validator
 from typing import Optional
 
-from medkit.core.medkit_client import MedKitClient
+from medkit.core.medkit_client import MedKitClient, MedKitConfig
 from medkit.core.module_config import get_module_config
 from medkit.utils.pydantic_prompt_generator import PromptStyle
 from medkit.utils.logging_config import setup_logger
-from medkit.utils.storage_config import StorageConfig
 
 import hashlib
 from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
@@ -244,7 +243,7 @@ class DrugInteractionResult(BaseModel):
 
 
 @dataclass
-class DrugDrugInteractionConfig(StorageConfig):
+class DrugDrugInteractionConfig(MedKitConfig):
     """
     Configuration for drug-drug interaction analysis.
 

@@ -32,21 +32,19 @@ from dataclasses import dataclass, field
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
-from medkit.core.medkit_client import MedKitClient
+from medkit.core.medkit_client import MedKitClient, MedKitConfig
 from medkit.core.module_config import get_module_config
 
 import hashlib
 from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
-from medkit.utils.storage_config import StorageConfig
 
 # ============================================================================ 
 # CONFIGURATION
 # ============================================================================ 
 
 @dataclass
-class Config(StorageConfig):
+class Config(MedKitConfig):
     """Configuration for the medical facts checker."""
-    output_dir: Path = field(default_factory=lambda: Path("outputs"))
     log_file: Path = field(default_factory=lambda: Path("logs/medical_facts_checker.log"))
     verbose: bool = False
 

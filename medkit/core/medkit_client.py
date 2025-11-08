@@ -49,14 +49,57 @@ KEY FEATURES:
 import base64
 import json
 import logging
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
 from pydantic import BaseModel, ValidationError
 
 from medkit.core.gemini_client import GeminiClient, ModelConfig, ModelInput
 from medkit.utils.pydantic_prompt_generator import PydanticPromptGenerator, PromptStyle
+from medkit.utils.storage_config import StorageConfig
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class MedKitConfig(StorageConfig):
+    """
+    Centralized configuration for MedKit modules.
+
+    Combines storage configuration (from StorageConfig) with standard module
+    settings for output, logging, and verbosity control.
+
+    Attributes:
+        db_path: Path to LMDB database (inherited from StorageConfig)
+        db_capacity_mb: Database capacity in MB (inherited from StorageConfig)
+        db_store: Whether to cache results (inherited from StorageConfig)
+        db_overwrite: Whether to overwrite cached results (inherited from StorageConfig)
+        output_dir: Directory for module output files
+        log_file: Path to log file for this module
+        verbosity: Logging verbosity level (0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG)
+
+    Example:
+        >>> config = MedKitConfig(
+        ...     db_path="/path/to/db.lmdb",
+        ...     output_dir=Path("outputs"),
+        ...     verbosity=3  # INFO level
+        ... )
+        >>> # Use in a module
+        >>> generator = MyModule(config=config)
+    """
+    output_dir: Path = field(default_factory=lambda: Path("outputs"))
+    log_file: Optional[Path] = None
+    verbosity: int = 2  # Verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG
+
+    def __post_init__(self):
+        """Validate configuration after initialization."""
+        # Validate verbosity level
+        if not 0 <= self.verbosity <= 4:
+            raise ValueError("verbosity must be between 0 and 4")
+
+        # Call parent validation
+        super().__post_init__()
 
 
 class MedKitClient(GeminiClient):

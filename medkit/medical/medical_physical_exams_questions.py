@@ -42,13 +42,12 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from medkit.core.medkit_client import MedKitClient
+from medkit.core.medkit_client import MedKitClient, MedKitConfig
 from medkit.core.module_config import get_module_config
 from medkit.utils.logging_config import setup_logger
 
 import hashlib
 from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
-from medkit.utils.storage_config import StorageConfig
 
 logger = setup_logger(__name__, enable_file_handler=True)
 
@@ -57,11 +56,9 @@ logger = setup_logger(__name__, enable_file_handler=True)
 # ============================================================================
 
 @dataclass
-class Config(StorageConfig):
+class Config(MedKitConfig):
     """Configuration for the physical exam question generator."""
     output_dir: Path = field(default_factory=lambda: Path(__file__).parent / "outputs")
-    log_file: Path = field(default_factory=lambda: Path(__file__).parent / "logs" / f"{Path(__file__).stem}.log")
-    verbosity: int = 2  # Verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG
 
 
     def __post_init__(self):

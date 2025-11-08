@@ -18,11 +18,10 @@ from pydantic import BaseModel, Field, validator
 import networkx as nx
 import matplotlib.pyplot as plt
 import json
-from medkit.core.medkit_client import MedKitClient
+from medkit.core.medkit_client import MedKitClient, MedKitConfig
 from medkit.core.gemini_client import ModelInput
 
 import hashlib
-from medkit.utils.storage_config import StorageConfig
 from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
 
 # Uncomment in production:
@@ -33,7 +32,7 @@ from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
 # Configuration
 # =========================
 @dataclass
-class TestGraphConfig(StorageConfig):
+class TestGraphConfig(MedKitConfig):
     """
     Configuration for medical_tests_graph.
 
