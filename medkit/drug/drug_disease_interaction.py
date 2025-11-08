@@ -62,7 +62,6 @@ from pydantic import BaseModel, Field, validator
 from typing import Optional
 
 from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.core.module_config import get_module_config
 from medkit.utils.pydantic_prompt_generator import PromptStyle
 from medkit.utils.logging_config import setup_logger
 
@@ -367,12 +366,7 @@ class DrugDiseaseInteraction:
         self.config = config
 
         # Load model name from ModuleConfig
-        try:
-            module_config = get_module_config("drug_disease_interaction")
-            model_name = module_config.model_name
-        except ValueError:
-            # Fallback to default if not registered yet
-            model_name = "gemini-1.5-pro"
+        model_name = "gemini-1.5-pro"  # Default model for this module
 
         self.client = MedKitClient(model_name=model_name)
 

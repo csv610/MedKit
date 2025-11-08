@@ -32,7 +32,6 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.core.module_config import get_module_config, ModuleConfig
 
 from medkit.utils.logging_config import setup_logger
 

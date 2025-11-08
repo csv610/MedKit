@@ -52,7 +52,6 @@ from typing import Optional, List
 
 from medkit.utils.logging_config import setup_logger
 from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.core.module_config import get_module_config
 
 import hashlib
 from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
@@ -276,17 +275,7 @@ class MedicalTestInfoGenerator:
         self.config = config or Config()
         # Load model name from ModuleConfig
 
-        try:
-
-            module_config = get_module_config("medical_test_info")
-
-            model_name = module_config.model_name
-
-        except ValueError:
-
-            # Fallback to default if not registered yet
-
-            model_name = "gemini-1.5-flash"
+        model_name = "gemini-1.5-flash"  # Default model for this module
 
         
 

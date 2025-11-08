@@ -57,7 +57,6 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.core.module_config import get_module_config
 
 from medkit.utils.logging_config import setup_logger
 
@@ -161,12 +160,7 @@ class FAQGenerator:
         self.config = config or Config()
 
         # Load model name from ModuleConfig
-        try:
-            module_config = get_module_config("medical_faq")
-            model_name = module_config.model_name
-        except ValueError:
-            # Fallback to default if not registered yet
-            model_name = "gemini-1.5-flash"
+        model_name = "gemini-1.5-flash"  # Default model for this module
 
         self.client = MedKitClient(model_name=model_name)
         self.topic_name: Optional[str] = None

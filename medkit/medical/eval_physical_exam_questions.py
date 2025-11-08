@@ -42,7 +42,6 @@ from pathlib import Path
 from typing import List, Literal
 from pydantic import BaseModel
 from medkit.core.medkit_client import MedKitClient
-from medkit.core.module_config import get_module_config
 
 class CriteriaEvaluation(BaseModel):
     criterion: str
@@ -99,22 +98,7 @@ def evaluate_exam_questions(input_file: str) -> QualityEvaluation:
     # Load model name from ModuleConfig
 
 
-    try:
-
-
-        module_config = get_module_config("eval_physical_exam_questions")
-
-
-        model_name = module_config.model_name
-
-
-    except ValueError:
-
-
-        # Fallback to default if not registered yet
-
-
-        model_name = "gemini-1.5-flash"
+    model_name = "gemini-1.5-flash"  # Default model for this module
 
 
     
