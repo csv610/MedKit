@@ -58,6 +58,7 @@ from medkit.core.medkit_client import MedKitClient
 from medkit.core.module_config import get_module_config
 from medkit.utils.pydantic_prompt_generator import PromptStyle
 from medkit.utils.logging_config import setup_logger
+from medkit.utils.storage_config import StorageConfig
 
 # Configure logging
 logger = setup_logger(__name__)
@@ -70,16 +71,31 @@ logger.info("="*80)
 # ============================================================================
 
 @dataclass
-class MedicineInfoConfig:
-    """Configuration for generating medicine information."""
+class MedicineInfoConfig(StorageConfig):
+    """
+    Configuration for generating medicine information.
+
+    Inherits from StorageConfig for LMDB database settings:
+    - db_path: Auto-generated path to medicine_info.lmdb
+    - db_capacity_mb: Database capacity (default 500 MB)
+    - db_store: Whether to cache results (default True)
+    - db_overwrite: Whether to refresh cache (default False)
+    """
     output_path: Optional[Path] = None
     output_dir: Path = field(default_factory=lambda: Path("outputs"))
     verbosity: bool = False  # If True, enable detailed debug logging
     prompt_style: PromptStyle = PromptStyle.DETAILED
-    db_path: str = field(default_factory=lambda: str(Path(__file__).parent.parent.parent / "storage" / "medicine_info.lmdb"))
-    db_capacity_mb: int = 500
     enable_cache: bool = True
-    db_overwrite: bool = False  # If True, overwrite existing cached entries; if False, use cached entry if exists
+
+    def __post_init__(self):
+        """Set default db_path if not provided, then validate."""
+        # Auto-generate db_path for this module if not set
+        if self.db_path is None:
+            self.db_path = str(
+                Path(__file__).parent.parent / "storage" / "medicine_info.lmdb"
+            )
+        # Call parent validation
+        super().__post_init__()
 
 
 # ============================================================================

@@ -22,11 +22,12 @@ from dataclasses import dataclass, field
 from typing import Optional, Dict, List
 from pathlib import Path
 import sys
+import os
 
 
 def _is_running_tests() -> bool:
     """Detect if code is running under pytest."""
-    return "pytest" in sys.modules or "PYTEST_CURRENT_TEST" in sys.environ
+    return "pytest" in sys.modules or "PYTEST_CURRENT_TEST" in os.environ
 
 
 @dataclass
