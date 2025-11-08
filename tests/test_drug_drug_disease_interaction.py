@@ -78,11 +78,13 @@ class TestImpactTypeEnum(unittest.TestCase):
     def test_impact_types(self):
         """Test various impact types."""
         impacts = [
-            ImpactType.EFFICACY,
-            ImpactType.TOXICITY,
-            ImpactType.METABOLISM,
-            ImpactType.CLEARANCE,
-            ImpactType.ABSORPTION
+            ImpactType.EFFICACY_REDUCTION,
+            ImpactType.EFFICACY_ENHANCEMENT,
+            ImpactType.INCREASED_TOXICITY,
+            ImpactType.ALTERED_METABOLISM,
+            ImpactType.CONTRAINDICATED,
+            ImpactType.REQUIRES_MONITORING,
+            ImpactType.REQUIRES_DOSE_ADJUSTMENT
         ]
         self.assertGreater(len(impacts), 3)
 
@@ -95,30 +97,31 @@ class TestEfficacyImpact(unittest.TestCase):
     def test_efficacy_impact_creation(self):
         """Test creating efficacy impact."""
         ei = EfficacyImpact(
-            impact_type="Reduced effectiveness",
-            mechanism="Impaired drug metabolism",
+            has_impact=True,
+            impact_description="Reduced effectiveness due to impaired drug metabolism",
             clinical_significance="Patient may require dose increase"
         )
-        self.assertEqual(ei.impact_type, "Reduced effectiveness")
-        self.assertIn("metabolism", ei.mechanism.lower())
+        self.assertTrue(ei.has_impact)
+        self.assertIn("metabolism", ei.impact_description.lower())
 
     def test_efficacy_impact_enhanced(self):
         """Test enhanced drug efficacy."""
         ei = EfficacyImpact(
-            impact_type="Enhanced effectiveness",
-            mechanism="Decreased drug clearance",
+            has_impact=True,
+            impact_description="Enhanced effectiveness due to decreased drug clearance",
             clinical_significance="Risk of toxicity with standard dose"
         )
-        self.assertIn("Enhanced", ei.impact_type)
+        self.assertTrue(ei.has_impact)
+        self.assertIn("enhanced", ei.impact_description.lower())
 
     def test_efficacy_impact_none(self):
         """Test no efficacy impact."""
         ei = EfficacyImpact(
-            impact_type="No significant effect",
-            mechanism="Drug metabolism unaffected by condition",
+            has_impact=False,
+            impact_description="No significant effect - Drug metabolism unaffected by condition",
             clinical_significance="Standard dosing appropriate"
         )
-        self.assertIn("No", ei.impact_type)
+        self.assertFalse(ei.has_impact)
 
 
 # ==================== Safety Impact Tests ====================
@@ -129,30 +132,35 @@ class TestSafetyImpact(unittest.TestCase):
     def test_safety_impact_increased_risk(self):
         """Test increased side effect risk."""
         si = SafetyImpact(
-            risk_type="Increased nephrotoxicity",
-            severity_if_occurs="Severe",
-            estimated_incidence="20-30%"
+            has_impact=True,
+            impact_description="Increased nephrotoxicity risk",
+            increased_side_effects="Acute kidney injury, elevated creatinine",
+            risk_level=InteractionSeverity.SIGNIFICANT
         )
-        self.assertIn("nephrotoxicity", si.risk_type.lower())
-        self.assertEqual(si.severity_if_occurs, "Severe")
+        self.assertTrue(si.has_impact)
+        self.assertIn("nephrotoxicity", si.impact_description.lower())
+        self.assertEqual(si.risk_level, InteractionSeverity.SIGNIFICANT)
 
     def test_safety_impact_no_additional_risk(self):
         """Test no additional safety risk."""
         si = SafetyImpact(
-            risk_type="No additional risk",
-            severity_if_occurs="N/A",
-            estimated_incidence="No increased risk"
+            has_impact=False,
+            impact_description="No additional risk identified",
+            increased_side_effects=None
         )
-        self.assertIn("No", si.risk_type)
+        self.assertFalse(si.has_impact)
 
     def test_safety_impact_variable_risk(self):
         """Test variable risk based on condition severity."""
         si = SafetyImpact(
-            risk_type="Hyperkalemia risk increases with worsening renal function",
-            severity_if_occurs="Moderate to Severe",
-            estimated_incidence="Depends on eGFR"
+            has_impact=True,
+            impact_description="Hyperkalemia risk increases with worsening renal function",
+            increased_side_effects="Elevated potassium levels",
+            risk_level=InteractionSeverity.MODERATE,
+            monitoring_for_safety="eGFR, serum potassium, electrolytes"
         )
-        self.assertIn("eGFR", si.estimated_incidence)
+        self.assertTrue(si.has_impact)
+        self.assertIn("eGFR", si.monitoring_for_safety)
 
 
 # ==================== Dosage Adjustment Tests ====================
@@ -163,30 +171,34 @@ class TestDosageAdjustment(unittest.TestCase):
     def test_dosage_adjustment_reduction(self):
         """Test dose reduction requirement."""
         da = DosageAdjustment(
-            recommendation="Reduce dose by 50%",
-            rationale="Impaired renal clearance",
-            monitoring_requirement="Check serum levels weekly"
+            adjustment_needed=True,
+            adjustment_type="dose reduction",
+            specific_recommendations="Reduce dose by 50% due to impaired renal clearance",
+            monitoring_parameters="Serum creatinine, serum levels weekly"
         )
-        self.assertIn("50%", da.recommendation)
-        self.assertIn("renal", da.rationale.lower())
+        self.assertTrue(da.adjustment_needed)
+        self.assertIn("50%", da.specific_recommendations)
+        self.assertIn("renal", da.specific_recommendations.lower())
 
     def test_dosage_adjustment_no_change(self):
         """Test no dose adjustment needed."""
         da = DosageAdjustment(
-            recommendation="No adjustment needed",
-            rationale="Drug metabolism unaffected",
-            monitoring_requirement="Routine monitoring only"
+            adjustment_needed=False,
+            adjustment_type=None,
+            specific_recommendations="Drug metabolism unaffected - routine monitoring only"
         )
-        self.assertIn("No", da.recommendation)
+        self.assertFalse(da.adjustment_needed)
 
     def test_dosage_adjustment_frequency_change(self):
         """Test frequency adjustment."""
         da = DosageAdjustment(
-            recommendation="Increase interval from Q6H to Q8H",
-            rationale="Delayed clearance",
-            monitoring_requirement="Monitor for accumulation"
+            adjustment_needed=True,
+            adjustment_type="dosing interval change",
+            specific_recommendations="Increase interval from Q6H to Q8H due to delayed clearance",
+            monitoring_parameters="Monitor for drug accumulation, serum levels"
         )
-        self.assertIn("Q8H", da.recommendation)
+        self.assertTrue(da.adjustment_needed)
+        self.assertIn("Q8H", da.specific_recommendations)
 
 
 # ==================== Management Strategy Tests ====================
@@ -197,30 +209,31 @@ class TestManagementStrategy(unittest.TestCase):
     def test_management_strategy_monitor(self):
         """Test monitoring strategy."""
         ms = ManagementStrategy(
-            strategy_type="Close monitoring",
-            action_items=["Check renal function weekly", "Monitor drug levels"],
-            frequency="Weekly for 4 weeks"
+            impact_types=[ImpactType.REQUIRES_MONITORING],
+            clinical_recommendations="Check renal function weekly, Monitor drug levels, Adjust dose if needed",
+            contraindication_status="Safe with monitoring"
         )
-        self.assertEqual(ms.strategy_type, "Close monitoring")
-        self.assertEqual(len(ms.action_items), 2)
+        self.assertIn(ImpactType.REQUIRES_MONITORING, ms.impact_types)
+        self.assertIn("renal", ms.clinical_recommendations.lower())
 
     def test_management_strategy_avoid(self):
         """Test avoid strategy."""
         ms = ManagementStrategy(
-            strategy_type="Avoid combination",
-            action_items=["Use alternative drug", "Document contraindication"],
-            frequency="Not applicable"
+            impact_types=[ImpactType.CONTRAINDICATED],
+            clinical_recommendations="Use alternative drug, Document contraindication in chart, Inform patient",
+            contraindication_status="Contraindicated"
         )
-        self.assertIn("Avoid", ms.strategy_type)
+        self.assertIn(ImpactType.CONTRAINDICATED, ms.impact_types)
+        self.assertEqual(ms.contraindication_status, "Contraindicated")
 
     def test_management_strategy_optimize(self):
         """Test optimization strategy."""
         ms = ManagementStrategy(
-            strategy_type="Optimize therapy",
-            action_items=["Reduce dose", "Increase monitoring", "Educate patient"],
-            frequency="As needed"
+            impact_types=[ImpactType.REQUIRES_DOSE_ADJUSTMENT, ImpactType.REQUIRES_MONITORING],
+            clinical_recommendations="Reduce dose, Increase monitoring frequency, Educate patient on side effects, Adjust based on therapeutic drug monitoring",
+            contraindication_status="Safe with precautions"
         )
-        self.assertGreater(len(ms.action_items), 2)
+        self.assertGreater(len(ms.impact_types), 1)
 
 
 # ==================== Interaction Details Tests ====================
@@ -231,28 +244,34 @@ class TestDrugDiseaseInteractionDetails(unittest.TestCase):
     def setUp(self):
         """Set up test data."""
         self.details_data = {
+            "medicine_name": "Metformin",
+            "condition_name": "Chronic Kidney Disease",
+            "overall_severity": InteractionSeverity.SIGNIFICANT,
+            "mechanism_of_interaction": "Impaired renal clearance leads to drug accumulation",
             "efficacy_impact": EfficacyImpact(
-                impact_type="Reduced effectiveness",
-                mechanism="Impaired metabolism",
+                has_impact=True,
+                impact_description="Reduced effectiveness due to impaired metabolism",
                 clinical_significance="May need dose adjustment"
             ),
             "safety_impact": SafetyImpact(
-                risk_type="Increased toxicity risk",
-                severity_if_occurs="Moderate",
-                estimated_incidence="10-20%"
+                has_impact=True,
+                impact_description="Increased toxicity risk",
+                increased_side_effects="Lactic acidosis",
+                risk_level=InteractionSeverity.MODERATE
             ),
             "dosage_adjustment": DosageAdjustment(
-                recommendation="Reduce dose by 25-50%",
-                rationale="Decreased clearance",
-                monitoring_requirement="Weekly monitoring"
+                adjustment_needed=True,
+                adjustment_type="dose reduction",
+                specific_recommendations="Reduce dose by 25-50% based on eGFR",
+                monitoring_parameters="eGFR, serum creatinine"
             ),
             "management_strategy": ManagementStrategy(
-                strategy_type="Close monitoring",
-                action_items=["Monitor levels", "Adjust dose"],
-                frequency="Weekly"
+                impact_types=[ImpactType.REQUIRES_DOSE_ADJUSTMENT, ImpactType.REQUIRES_MONITORING],
+                clinical_recommendations="Monitor levels, Adjust dose based on renal function",
+                contraindication_status="Safe with dose adjustment"
             ),
-            "monitoring_requirements": "Check renal function and drug levels",
-            "clinical_considerations": "Consider alternative if possible"
+            "confidence_level": ConfidenceLevel.HIGH,
+            "data_source_type": DataSourceType.CLINICAL_STUDIES
         }
 
     def test_interaction_details_creation(self):
@@ -264,9 +283,10 @@ class TestDrugDiseaseInteractionDetails(unittest.TestCase):
     def test_interaction_details_serialization(self):
         """Test serialization."""
         details = DrugDiseaseInteractionDetails(**self.details_data)
-        data_dict = details.dict()
+        data_dict = details.model_dump()
         self.assertIn("efficacy_impact", data_dict)
         self.assertIn("safety_impact", data_dict)
+        self.assertIn("medicine_name", data_dict)
 
 
 # ==================== Patient Friendly Summary Tests ====================
@@ -277,22 +297,24 @@ class TestPatientFriendlySummary(unittest.TestCase):
     def test_patient_summary_creation(self):
         """Test creating patient-friendly summary."""
         pfs = PatientFriendlySummary(
-            patient_friendly_explanation="Your kidney disease may affect how your body processes this medication",
-            what_patient_should_know="Tell your doctor about your kidney disease",
-            side_effects_to_watch_for=["Unusual fatigue", "Dark urine"],
-            when_to_contact_doctor="If you feel more tired than usual"
+            simple_explanation="Your kidney disease may affect how your body processes this medication",
+            what_patient_should_do="Tell your doctor about your kidney disease",
+            signs_of_problems="Unusual fatigue, Dark urine, Nausea",
+            when_to_contact_doctor="If you feel more tired than usual",
+            lifestyle_modifications="Stay hydrated, Maintain healthy diet"
         )
-        self.assertIn("kidney disease", pfs.patient_friendly_explanation.lower())
+        self.assertIn("kidney disease", pfs.simple_explanation.lower())
 
     def test_patient_summary_empty_side_effects(self):
         """Test summary with minimal side effects."""
         pfs = PatientFriendlySummary(
-            patient_friendly_explanation="This combination is generally safe",
-            what_patient_should_know="No special precautions needed",
-            side_effects_to_watch_for=[],
-            when_to_contact_doctor="For routine adverse effects"
+            simple_explanation="This combination is generally safe",
+            what_patient_should_do="No special precautions needed",
+            signs_of_problems="Standard side effects only",
+            when_to_contact_doctor="For routine adverse effects",
+            lifestyle_modifications="No specific modifications required"
         )
-        self.assertEqual(len(pfs.side_effects_to_watch_for), 0)
+        self.assertIn("generally safe", pfs.simple_explanation)
 
 
 # ==================== Complete Interaction Result Tests ====================
@@ -303,60 +325,69 @@ class TestDrugDiseaseInteractionResult(unittest.TestCase):
     def setUp(self):
         """Set up test data."""
         self.result_data = {
-            "drug_name": "Metformin",
-            "disease_name": "Chronic Kidney Disease",
-            "interaction_severity": InteractionSeverity.SIGNIFICANT,
-            "confidence_level": ConfidenceLevel.HIGH,
             "interaction_details": DrugDiseaseInteractionDetails(
+                medicine_name="Metformin",
+                condition_name="Chronic Kidney Disease",
+                overall_severity=InteractionSeverity.SIGNIFICANT,
+                mechanism_of_interaction="Impaired renal clearance leads to drug accumulation",
                 efficacy_impact=EfficacyImpact(
-                    impact_type="Reduced effectiveness",
-                    mechanism="Decreased clearance",
+                    has_impact=True,
+                    impact_description="Reduced effectiveness due to decreased clearance",
                     clinical_significance="May need to avoid"
                 ),
                 safety_impact=SafetyImpact(
-                    risk_type="Lactic acidosis risk",
-                    severity_if_occurs="Life-threatening",
-                    estimated_incidence="0.3-1.3 per 1000 patient-years"
+                    has_impact=True,
+                    impact_description="Lactic acidosis risk",
+                    increased_side_effects="Lactic acidosis",
+                    risk_level=InteractionSeverity.CONTRAINDICATED
                 ),
                 dosage_adjustment=DosageAdjustment(
-                    recommendation="Contraindicated with eGFR <30",
-                    rationale="Risk of lactic acidosis",
-                    monitoring_requirement="Check eGFR regularly"
+                    adjustment_needed=True,
+                    adjustment_type="contraindicated",
+                    specific_recommendations="Contraindicated with eGFR <30 due to risk of lactic acidosis",
+                    monitoring_parameters="eGFR, serum creatinine"
                 ),
                 management_strategy=ManagementStrategy(
-                    strategy_type="Avoid or use with extreme caution",
-                    action_items=["Switch to alternative", "Monitor eGFR"],
-                    frequency="Quarterly"
+                    impact_types=[ImpactType.CONTRAINDICATED],
+                    clinical_recommendations="Switch to alternative antidiabetic, Use SGLT2i or GLP-1 agonist",
+                    contraindication_status="Contraindicated with eGFR <30"
                 ),
-                monitoring_requirements="Monthly eGFR, lactic acid monitoring",
-                clinical_considerations="Use GLP-1 agonist or SGLT2 inhibitor instead"
+                confidence_level=ConfidenceLevel.HIGH,
+                data_source_type=DataSourceType.CLINICAL_STUDIES,
+                references="FDA guidance, Clinical studies on metformin nephrotoxicity"
             ),
+            "technical_summary": "Metformin is contraindicated in chronic kidney disease with eGFR <30 due to risk of lactic acidosis",
             "patient_friendly_summary": PatientFriendlySummary(
-                patient_friendly_explanation="Your kidney disease affects how your body processes metformin",
-                what_patient_should_know="This medication may not be safe for you",
-                side_effects_to_watch_for=["Nausea", "Unusual fatigue"],
-                when_to_contact_doctor="Immediately if you feel very tired or nauseous"
+                simple_explanation="Your kidney disease affects how your body processes metformin",
+                what_patient_should_do="This medication may not be safe for you - ask your doctor about alternatives",
+                signs_of_problems="Nausea, Unusual fatigue, Difficulty breathing, Muscle pain",
+                when_to_contact_doctor="Immediately if you feel very tired, nauseous, or have difficulty breathing",
+                lifestyle_modifications="Maintain hydration, Monitor kidney function regularly, Manage blood sugar with alternatives"
+            ),
+            "data_availability": DataAvailabilityInfo(
+                data_available=True,
+                reason=None
             )
         }
 
     def test_interaction_result_creation(self):
         """Test creating interaction result."""
         result = DrugDiseaseInteractionResult(**self.result_data)
-        self.assertEqual(result.drug_name, "Metformin")
-        self.assertEqual(result.disease_name, "Chronic Kidney Disease")
-        self.assertEqual(result.interaction_severity, InteractionSeverity.SIGNIFICANT)
+        self.assertEqual(result.interaction_details.medicine_name, "Metformin")
+        self.assertEqual(result.interaction_details.condition_name, "Chronic Kidney Disease")
+        self.assertEqual(result.interaction_details.overall_severity, InteractionSeverity.SIGNIFICANT)
 
     def test_interaction_result_serialization(self):
         """Test serialization."""
         result = DrugDiseaseInteractionResult(**self.result_data)
-        json_str = result.json()
+        json_str = result.model_dump_json()
         self.assertIn("Metformin", json_str)
         self.assertIn("Kidney", json_str)
 
     def test_interaction_result_missing_field(self):
         """Test with missing required field."""
         incomplete = self.result_data.copy()
-        del incomplete["interaction_severity"]
+        del incomplete["technical_summary"]
         with self.assertRaises(ValidationError):
             DrugDiseaseInteractionResult(**incomplete)
 
@@ -369,167 +400,190 @@ class TestRealisticDrugDiseaseInteractions(unittest.TestCase):
     def test_metformin_kidney_disease(self):
         """Test metformin with chronic kidney disease."""
         result = DrugDiseaseInteractionResult(
-            drug_name="Metformin",
-            disease_name="Chronic Kidney Disease",
-            interaction_severity=InteractionSeverity.CONTRAINDICATED,
-            confidence_level=ConfidenceLevel.HIGH,
             interaction_details=DrugDiseaseInteractionDetails(
+                medicine_name="Metformin",
+                condition_name="Chronic Kidney Disease",
+                overall_severity=InteractionSeverity.CONTRAINDICATED,
+                mechanism_of_interaction="Decreased renal clearance leads to drug accumulation and lactic acidosis risk",
                 efficacy_impact=EfficacyImpact(
-                    impact_type="Reduced effectiveness",
-                    mechanism="Decreased renal clearance",
+                    has_impact=True,
+                    impact_description="Reduced effectiveness due to decreased renal clearance",
                     clinical_significance="Drug accumulation risk"
                 ),
                 safety_impact=SafetyImpact(
-                    risk_type="Lactic acidosis",
-                    severity_if_occurs="Life-threatening",
-                    estimated_incidence="Increased with eGFR <30"
+                    has_impact=True,
+                    impact_description="Lactic acidosis risk",
+                    increased_side_effects="Lactic acidosis, metabolic complications",
+                    risk_level=InteractionSeverity.CONTRAINDICATED
                 ),
                 dosage_adjustment=DosageAdjustment(
-                    recommendation="Contraindicated with eGFR <30",
-                    rationale="High risk of lactic acidosis",
-                    monitoring_requirement="Regular eGFR monitoring"
+                    adjustment_needed=True,
+                    adjustment_type="contraindicated",
+                    specific_recommendations="Contraindicated with eGFR <30 due to high risk of lactic acidosis",
+                    monitoring_parameters="eGFR, serum creatinine"
                 ),
                 management_strategy=ManagementStrategy(
-                    strategy_type="Avoid",
-                    action_items=["Use alternative antidiabetic", "SGLT2i or GLP-1 agonist"],
-                    frequency="N/A"
+                    impact_types=[ImpactType.CONTRAINDICATED],
+                    clinical_recommendations="Use alternative antidiabetic, SGLT2i or GLP-1 agonist preferred",
+                    contraindication_status="Contraindicated with eGFR <30"
                 ),
-                monitoring_requirements="eGFR at baseline and regularly",
-                clinical_considerations="Risk increases as kidney function declines"
+                confidence_level=ConfidenceLevel.HIGH,
+                data_source_type=DataSourceType.CLINICAL_STUDIES
             ),
+            technical_summary="Metformin is contraindicated in chronic kidney disease with eGFR <30",
             patient_friendly_summary=PatientFriendlySummary(
-                patient_friendly_explanation="Your weak kidneys cannot clear metformin safely",
-                what_patient_should_know="You need a different diabetes medicine",
-                side_effects_to_watch_for=["Severe nausea", "Difficulty breathing"],
-                when_to_contact_doctor="Immediately if symptoms occur"
-            )
+                simple_explanation="Your weak kidneys cannot clear metformin safely",
+                what_patient_should_do="You need a different diabetes medicine",
+                signs_of_problems="Severe nausea, Difficulty breathing, Unusual fatigue",
+                when_to_contact_doctor="Immediately if symptoms occur",
+                lifestyle_modifications="Monitor kidney function regularly, Manage blood sugar with alternatives"
+            ),
+            data_availability=DataAvailabilityInfo(data_available=True)
         )
 
-        self.assertEqual(result.interaction_severity, InteractionSeverity.CONTRAINDICATED)
-        self.assertIn("Avoid", result.interaction_details.management_strategy.strategy_type)
+        self.assertEqual(result.interaction_details.overall_severity, InteractionSeverity.CONTRAINDICATED)
+        self.assertIn(ImpactType.CONTRAINDICATED, result.interaction_details.management_strategy.impact_types)
 
     def test_nsaid_heart_failure(self):
         """Test NSAIDs with heart failure."""
         result = DrugDiseaseInteractionResult(
-            drug_name="Ibuprofen",
-            disease_name="Heart Failure",
-            interaction_severity=InteractionSeverity.SIGNIFICANT,
-            confidence_level=ConfidenceLevel.HIGH,
             interaction_details=DrugDiseaseInteractionDetails(
+                medicine_name="Ibuprofen",
+                condition_name="Heart Failure",
+                overall_severity=InteractionSeverity.SIGNIFICANT,
+                mechanism_of_interaction="Fluid retention and reduced renal perfusion worsen heart failure",
                 efficacy_impact=EfficacyImpact(
-                    impact_type="Counteracted by heart failure",
-                    mechanism="Fluid retention worsens heart failure",
-                    clinical_significance="Exacerbation risk"
+                    has_impact=True,
+                    impact_description="Counteracted by heart failure effects",
+                    clinical_significance="Pain relief offset by worsening cardiac condition"
                 ),
                 safety_impact=SafetyImpact(
-                    risk_type="Heart failure exacerbation",
-                    severity_if_occurs="Severe",
-                    estimated_incidence="20-30% increased risk"
+                    has_impact=True,
+                    impact_description="Heart failure exacerbation risk",
+                    increased_side_effects="Fluid retention, dyspnea, cardiac decompensation",
+                    risk_level=InteractionSeverity.SIGNIFICANT
                 ),
                 dosage_adjustment=DosageAdjustment(
-                    recommendation="Avoid completely",
-                    rationale="Increased mortality risk",
-                    monitoring_requirement="N/A"
+                    adjustment_needed=True,
+                    adjustment_type="contraindicated",
+                    specific_recommendations="Avoid completely - increased mortality risk",
+                    monitoring_parameters="Fluid status, weight, dyspnea"
                 ),
                 management_strategy=ManagementStrategy(
-                    strategy_type="Avoid NSAIDs",
-                    action_items=["Use acetaminophen", "Consider topical agents"],
-                    frequency="N/A"
+                    impact_types=[ImpactType.CONTRAINDICATED],
+                    clinical_recommendations="Use acetaminophen instead, Consider topical NSAIDs",
+                    contraindication_status="Avoid NSAIDs completely"
                 ),
-                monitoring_requirements="Monitor for fluid retention and dyspnea",
-                clinical_considerations="Even short-term use increases risk"
+                confidence_level=ConfidenceLevel.HIGH,
+                data_source_type=DataSourceType.CLINICAL_STUDIES
             ),
+            technical_summary="NSAIDs are contraindicated in heart failure due to increased mortality risk",
             patient_friendly_summary=PatientFriendlySummary(
-                patient_friendly_explanation="NSAIDs can make your heart condition worse",
-                what_patient_should_know="Avoid all pain medications except acetaminophen",
-                side_effects_to_watch_for=["Shortness of breath", "Swelling"],
-                when_to_contact_doctor="If you have any difficulty breathing"
-            )
+                simple_explanation="NSAIDs can make your heart condition worse",
+                what_patient_should_do="Avoid all pain medications except acetaminophen",
+                signs_of_problems="Shortness of breath, Swelling, Weight gain",
+                when_to_contact_doctor="If you have any difficulty breathing or swelling",
+                lifestyle_modifications="Limit salt intake, Monitor weight daily, Rest when needed"
+            ),
+            data_availability=DataAvailabilityInfo(data_available=True)
         )
 
-        self.assertEqual(result.interaction_severity, InteractionSeverity.SIGNIFICANT)
+        self.assertEqual(result.interaction_details.overall_severity, InteractionSeverity.SIGNIFICANT)
 
     def test_acei_hyperkalemia(self):
         """Test ACE inhibitors with hyperkalemia."""
         result = DrugDiseaseInteractionResult(
-            drug_name="Lisinopril",
-            disease_name="Hyperkalemia",
-            interaction_severity=InteractionSeverity.CONTRAINDICATED,
-            confidence_level=ConfidenceLevel.HIGH,
             interaction_details=DrugDiseaseInteractionDetails(
+                medicine_name="Lisinopril",
+                condition_name="Hyperkalemia",
+                overall_severity=InteractionSeverity.CONTRAINDICATED,
+                mechanism_of_interaction="ACE inhibitor reduces aldosterone, worsening hyperkalemia and risk of cardiac arrhythmias",
                 efficacy_impact=EfficacyImpact(
-                    impact_type="No efficacy impact",
-                    mechanism="ACE inhibitor still controls blood pressure",
-                    clinical_significance="Benefit offset by safety risk"
+                    has_impact=False,
+                    impact_description="ACE inhibitor still controls blood pressure",
+                    clinical_significance="Benefit offset by severe safety risk"
                 ),
                 safety_impact=SafetyImpact(
-                    risk_type="Severe hyperkalemia and cardiac arrhythmias",
-                    severity_if_occurs="Life-threatening",
-                    estimated_incidence="High risk of cardiac events"
+                    has_impact=True,
+                    impact_description="Severe hyperkalemia and life-threatening cardiac arrhythmias",
+                    increased_side_effects="Ventricular fibrillation, cardiac arrest, severe hyperkalemia",
+                    risk_level=InteractionSeverity.CONTRAINDICATED
                 ),
                 dosage_adjustment=DosageAdjustment(
-                    recommendation="Contraindicated",
-                    rationale="ACE inhibitor worsens hyperkalemia",
-                    monitoring_requirement="K+ monitoring mandatory"
+                    adjustment_needed=True,
+                    adjustment_type="contraindicated",
+                    specific_recommendations="Absolutely contraindicated",
+                    monitoring_parameters="Potassium level, ECG, cardiac monitoring"
                 ),
                 management_strategy=ManagementStrategy(
-                    strategy_type="Avoid",
-                    action_items=["Use alternative antihypertensive", "Treat hyperkalemia first"],
-                    frequency="N/A"
+                    impact_types=[ImpactType.CONTRAINDICATED],
+                    clinical_recommendations="Use alternative antihypertensive, Treat underlying hyperkalemia first",
+                    contraindication_status="Contraindicated"
                 ),
-                monitoring_requirements="K+ and ECG monitoring",
-                clinical_considerations="Treat underlying hyperkalemia before use"
+                confidence_level=ConfidenceLevel.HIGH,
+                data_source_type=DataSourceType.CLINICAL_GUIDELINES
             ),
+            technical_summary="ACE inhibitors are contraindicated in hyperkalemia due to life-threatening cardiac risk",
             patient_friendly_summary=PatientFriendlySummary(
-                patient_friendly_explanation="ACE inhibitors can dangerously raise your potassium levels",
-                what_patient_should_know="You need a different blood pressure medication",
-                side_effects_to_watch_for=["Heart palpitations", "Weakness"],
-                when_to_contact_doctor="Immediately if you feel palpitations"
-            )
+                simple_explanation="This blood pressure medication can dangerously raise your potassium levels",
+                what_patient_should_do="You need a different blood pressure medication",
+                signs_of_problems="Heart palpitations, Weakness, Numbness, Shortness of breath",
+                when_to_contact_doctor="Immediately if you feel palpitations or weakness",
+                lifestyle_modifications="Limit potassium-rich foods, Avoid salt substitutes, Regular ECG monitoring"
+            ),
+            data_availability=DataAvailabilityInfo(data_available=True)
         )
 
-        self.assertEqual(result.interaction_severity, InteractionSeverity.CONTRAINDICATED)
+        self.assertEqual(result.interaction_details.overall_severity, InteractionSeverity.CONTRAINDICATED)
 
     def test_statins_liver_disease(self):
         """Test statins with liver disease."""
         result = DrugDiseaseInteractionResult(
-            drug_name="Atorvastatin",
-            disease_name="Cirrhosis",
-            interaction_severity=InteractionSeverity.SIGNIFICANT,
-            confidence_level=ConfidenceLevel.MODERATE,
             interaction_details=DrugDiseaseInteractionDetails(
+                medicine_name="Atorvastatin",
+                condition_name="Cirrhosis",
+                overall_severity=InteractionSeverity.SIGNIFICANT,
+                mechanism_of_interaction="Impaired hepatic metabolism with cirrhosis increases drug accumulation and hepatotoxicity",
                 efficacy_impact=EfficacyImpact(
-                    impact_type="Reduced effectiveness",
-                    mechanism="Impaired hepatic metabolism",
-                    clinical_significance="May not achieve lipid targets"
+                    has_impact=True,
+                    impact_description="Reduced effectiveness due to impaired hepatic metabolism",
+                    clinical_significance="May not achieve lipid targets safely"
                 ),
                 safety_impact=SafetyImpact(
-                    risk_type="Hepatotoxicity and statin-induced myopathy",
-                    severity_if_occurs="Moderate to Severe",
-                    estimated_incidence="Elevated liver enzyme risk"
+                    has_impact=True,
+                    impact_description="Hepatotoxicity and statin-induced myopathy risk",
+                    increased_side_effects="Elevated liver enzymes, myopathy, hepatic decompensation",
+                    risk_level=InteractionSeverity.MODERATE
                 ),
                 dosage_adjustment=DosageAdjustment(
-                    recommendation="Reduce dose; start with low dose",
-                    rationale="Decreased hepatic clearance",
-                    monitoring_requirement="LFTs at baseline, 3 months, then yearly"
+                    adjustment_needed=True,
+                    adjustment_type="dose reduction",
+                    specific_recommendations="Start with low dose, increase cautiously based on liver function",
+                    monitoring_parameters="LFTs at baseline, 3 months, then every 6 months"
                 ),
                 management_strategy=ManagementStrategy(
-                    strategy_type="Use with caution",
-                    action_items=["Start low dose", "Monitor liver function", "Check CK if symptomatic"],
-                    frequency="Quarterly LFTs"
+                    impact_types=[ImpactType.REQUIRES_DOSE_ADJUSTMENT, ImpactType.REQUIRES_MONITORING],
+                    clinical_recommendations="Use lowest effective dose, Monitor liver function closely, Check CK if symptomatic, Consider alternatives",
+                    contraindication_status="Safe with caution and close monitoring"
                 ),
-                monitoring_requirements="Liver function tests and CK",
-                clinical_considerations="Consider alternative lipid-lowering agent"
+                confidence_level=ConfidenceLevel.MODERATE,
+                data_source_type=DataSourceType.CLINICAL_STUDIES
             ),
+            technical_summary="Statins require careful dosing and monitoring in cirrhosis due to hepatotoxicity risk",
             patient_friendly_summary=PatientFriendlySummary(
-                patient_friendly_explanation="Your liver condition requires careful monitoring with this medication",
-                what_patient_should_know="You may need blood tests more often",
-                side_effects_to_watch_for=["Muscle pain", "Yellowing of skin"],
-                when_to_contact_doctor="If you have muscle pain or yellowing"
-            )
+                simple_explanation="Your liver condition requires careful monitoring with this medication",
+                what_patient_should_do="You may need blood tests more often to check your liver",
+                signs_of_problems="Muscle pain, Yellowing of skin or eyes, Dark urine, Unusual fatigue",
+                when_to_contact_doctor="If you have muscle pain, yellowing, or unusual fatigue",
+                lifestyle_modifications="Avoid alcohol completely, Maintain low saturated fat diet, Monitor symptoms daily"
+            ),
+            data_availability=DataAvailabilityInfo(data_available=True)
         )
 
-        self.assertGreaterEqual(result.interaction_severity.value, InteractionSeverity.MODERATE.value)
+        self.assertGreaterEqual(
+            result.interaction_details.overall_severity.value,
+            InteractionSeverity.MODERATE.value
+        )
 
 
 # ==================== Integration Tests ====================

@@ -38,21 +38,24 @@ class TestRiskFactors(unittest.TestCase):
         """Test creating risk factors with valid data."""
         rf = RiskFactors(
             modifiable=["smoking", "high cholesterol"],
-            non_modifiable=["age", "family history"]
+            non_modifiable=["age", "family history"],
+            environmental=["air pollution", "occupational exposure"]
         )
         self.assertEqual(rf.modifiable, ["smoking", "high cholesterol"])
         self.assertEqual(rf.non_modifiable, ["age", "family history"])
+        self.assertIn("air pollution", rf.environmental)
 
     def test_risk_factors_empty_lists(self):
         """Test risk factors with empty lists."""
-        rf = RiskFactors(modifiable=[], non_modifiable=[])
+        rf = RiskFactors(modifiable=[], non_modifiable=[], environmental=[])
         self.assertEqual(rf.modifiable, [])
         self.assertEqual(rf.non_modifiable, [])
+        self.assertEqual(rf.environmental, [])
 
     def test_risk_factors_missing_fields(self):
         """Test risk factors with missing required fields."""
         with self.assertRaises(ValidationError):
-            RiskFactors(modifiable=["smoking"])
+            RiskFactors(modifiable=["smoking"], non_modifiable=["age"])
 
 
 # ==================== Diagnostic Criteria Tests ====================
@@ -63,23 +66,27 @@ class TestDiagnosticCriteria(unittest.TestCase):
     def test_diagnostic_criteria_creation(self):
         """Test creating diagnostic criteria."""
         dc = DiagnosticCriteria(
-            criteria=["BP > 140/90", "On antihypertensive medication"],
-            confirmation_tests=["blood pressure reading", "home BP monitoring"],
-            differential_diagnoses=["secondary hypertension", "white coat effect"]
+            symptoms=["Headache", "Chest pain"],
+            physical_exam=["Elevated BP", "Heart murmur"],
+            laboratory_tests=["BP reading", "EKG"],
+            imaging_studies=["Chest X-ray", "Echocardiogram"]
         )
-        self.assertEqual(len(dc.criteria), 2)
-        self.assertEqual(len(dc.confirmation_tests), 2)
-        self.assertIn("secondary hypertension", dc.differential_diagnoses)
+        self.assertEqual(len(dc.symptoms), 2)
+        self.assertEqual(len(dc.physical_exam), 2)
+        self.assertIn("Chest X-ray", dc.imaging_studies)
 
     def test_diagnostic_criteria_empty_arrays(self):
         """Test diagnostic criteria with empty arrays."""
         dc = DiagnosticCriteria(
-            criteria=[],
-            confirmation_tests=[],
-            differential_diagnoses=[]
+            symptoms=[],
+            physical_exam=[],
+            laboratory_tests=[],
+            imaging_studies=[]
         )
-        self.assertEqual(len(dc.criteria), 0)
-        self.assertEqual(len(dc.confirmation_tests), 0)
+        self.assertEqual(len(dc.symptoms), 0)
+        self.assertEqual(len(dc.physical_exam), 0)
+        self.assertEqual(len(dc.laboratory_tests), 0)
+        self.assertEqual(len(dc.imaging_studies), 0)
 
 
 # ==================== Disease Identity Tests ====================
@@ -90,31 +97,29 @@ class TestDiseaseIdentity(unittest.TestCase):
     def test_disease_identity_creation(self):
         """Test creating disease identity."""
         di = DiseaseIdentity(
-            disease_name="Hypertension",
-            alternative_names=["High blood pressure", "HTN"],
-            icd10_codes=["I10"],
-            disease_category="Cardiovascular"
+            name="Hypertension",
+            synonyms=["High blood pressure", "HTN"],
+            icd_10_code="I10"
         )
-        self.assertEqual(di.disease_name, "Hypertension")
-        self.assertIn("HTN", di.alternative_names)
-        self.assertEqual(di.icd10_codes[0], "I10")
+        self.assertEqual(di.name, "Hypertension")
+        self.assertIn("HTN", di.synonyms)
+        self.assertEqual(di.icd_10_code, "I10")
 
     def test_disease_identity_without_alternatives(self):
         """Test disease identity without alternative names."""
         di = DiseaseIdentity(
-            disease_name="Uncommon Disease",
-            alternative_names=[],
-            icd10_codes=["Z00.00"],
-            disease_category="Other"
+            name="Uncommon Disease",
+            synonyms=[],
+            icd_10_code="Z00.00"
         )
-        self.assertEqual(len(di.alternative_names), 0)
+        self.assertEqual(len(di.synonyms), 0)
 
     def test_disease_identity_required_fields(self):
         """Test disease identity with missing required field."""
         with self.assertRaises(ValidationError):
             DiseaseIdentity(
-                disease_name="Test",
-                icd10_codes=["I10"]
+                name="Test",
+                synonyms=[]
             )
 
 
@@ -151,26 +156,32 @@ class TestDiseaseEpidemiology(unittest.TestCase):
 
     def test_epidemiology_creation(self):
         """Test creating epidemiology data."""
+        risk_factors = RiskFactors(
+            modifiable=["smoking", "diet"],
+            non_modifiable=["age"],
+            environmental=["pollution"]
+        )
         de = DiseaseEpidemiology(
             prevalence="30% of adults",
             incidence="3 million new cases per year",
-            mortality_rate="5-10%",
-            affected_populations=["Adults", "African Americans"],
-            geographic_distribution="Worldwide"
+            risk_factors=risk_factors
         )
         self.assertIn("30%", de.prevalence)
-        self.assertIn("African Americans", de.affected_populations)
+        self.assertIn("smoking", de.risk_factors.modifiable)
 
     def test_epidemiology_regional_variation(self):
         """Test epidemiology with regional data."""
+        risk_factors = RiskFactors(
+            modifiable=[],
+            non_modifiable=["age"],
+            environmental=[]
+        )
         de = DiseaseEpidemiology(
             prevalence="5-15% depending on region",
             incidence="Variable",
-            mortality_rate="2-8%",
-            affected_populations=["All ages"],
-            geographic_distribution="Higher in developed countries"
+            risk_factors=risk_factors
         )
-        self.assertIn("developed countries", de.geographic_distribution)
+        self.assertIn("region", de.prevalence)
 
 
 # ==================== Clinical Presentation Tests ====================
@@ -183,7 +194,7 @@ class TestDiseaseClinicalPresentation(unittest.TestCase):
         dcp = DiseaseClinicalPresentation(
             symptoms=["Headache", "Chest discomfort"],
             signs=["Elevated BP", "Left ventricular hypertrophy"],
-            severity_spectrum="Asymptomatic to severe"
+            natural_history="Progressive disorder with variable course"
         )
         self.assertEqual(len(dcp.symptoms), 2)
         self.assertIn("Elevated BP", dcp.signs)
@@ -193,7 +204,7 @@ class TestDiseaseClinicalPresentation(unittest.TestCase):
         dcp = DiseaseClinicalPresentation(
             symptoms=[],
             signs=["Finding 1"],
-            severity_spectrum="Often asymptomatic initially"
+            natural_history="Often asymptomatic initially"
         )
         self.assertEqual(len(dcp.symptoms), 0)
 
@@ -205,15 +216,18 @@ class TestDiseaseDiagnosis(unittest.TestCase):
 
     def test_diagnosis_creation(self):
         """Test creating diagnosis information."""
+        dc = DiagnosticCriteria(
+            symptoms=["Elevated BP"],
+            physical_exam=["Increased BP reading"],
+            laboratory_tests=["BP monitoring"],
+            imaging_studies=[]
+        )
         dd = DiseaseDiagnosis(
-            diagnostic_criteria=DiagnosticCriteria(
-                criteria=["BP > 140/90 on 2+ occasions"],
-                confirmation_tests=["Home BP monitoring"],
-                differential_diagnoses=["White coat effect"]
-            )
+            diagnostic_criteria=dc,
+            differential_diagnosis=["White coat effect", "Secondary hypertension"]
         )
         self.assertIsNotNone(dd.diagnostic_criteria)
-        self.assertEqual(len(dd.diagnostic_criteria.criteria), 1)
+        self.assertIn("White coat effect", dd.differential_diagnosis)
 
 
 # ==================== Management Tests ====================
@@ -225,20 +239,18 @@ class TestDiseaseManagement(unittest.TestCase):
         """Test creating management information."""
         dm = DiseaseManagement(
             treatment_options=["Lifestyle modification", "ACE inhibitors"],
-            medication_classes=["ACE inhibitors", "Beta blockers"],
-            lifestyle_modifications=["Reduce sodium intake", "Exercise"],
-            monitoring_parameters=["Blood pressure", "Kidney function"]
+            prevention=["Reduce sodium intake", "Exercise"],
+            prognosis="Good with treatment"
         )
         self.assertEqual(len(dm.treatment_options), 2)
-        self.assertIn("Beta blockers", dm.medication_classes)
+        self.assertIn("Exercise", dm.prevention)
 
     def test_management_conservative_approach(self):
         """Test management with conservative treatment."""
         dm = DiseaseManagement(
             treatment_options=["Observation only"],
-            medication_classes=[],
-            lifestyle_modifications=["Monitoring"],
-            monitoring_parameters=["Disease progression"]
+            prevention=["Lifestyle modifications"],
+            prognosis="Variable with monitoring"
         )
         self.assertEqual(len(dm.treatment_options), 1)
 
@@ -251,20 +263,18 @@ class TestDiseaseResearch(unittest.TestCase):
     def test_research_creation(self):
         """Test creating research information."""
         dr = DiseaseResearch(
-            current_research="Gene therapy approaches",
-            recent_breakthroughs=["New drug class approved 2023"],
-            clinical_trials="5000+ active trials"
+            current_research="Gene therapy approaches and immunotherapy research",
+            recent_advancements="New drug class approved 2023, improved management guidelines"
         )
         self.assertIn("Gene therapy", dr.current_research)
 
     def test_research_no_breakthroughs(self):
-        """Test research with no recent breakthroughs."""
+        """Test research with limited advancements."""
         dr = DiseaseResearch(
             current_research="Ongoing studies",
-            recent_breakthroughs=[],
-            clinical_trials="Limited trials"
+            recent_advancements="Limited recent breakthroughs"
         )
-        self.assertEqual(len(dr.recent_breakthroughs), 0)
+        self.assertIn("Limited", dr.recent_advancements)
 
 
 # ==================== Special Populations Tests ====================
@@ -275,23 +285,21 @@ class TestDiseaseSpecialPopulations(unittest.TestCase):
     def test_special_populations_creation(self):
         """Test creating special populations data."""
         dsp = DiseaseSpecialPopulations(
-            pediatric_considerations="Rare in children",
-            geriatric_considerations="Common, often undertreated",
-            pregnancy_considerations="Risk of pre-eclampsia",
-            gender_differences="Higher in men before age 65"
+            pediatric="Rare in children before age 12",
+            geriatric="Common, often undertreated in older adults",
+            pregnancy="Risk of pre-eclampsia during pregnancy"
         )
-        self.assertIn("Rare", dsp.pediatric_considerations)
-        self.assertIn("undertreated", dsp.geriatric_considerations)
+        self.assertIn("Rare", dsp.pediatric)
+        self.assertIn("undertreated", dsp.geriatric)
 
     def test_special_populations_no_differences(self):
         """Test when there are no special considerations."""
         dsp = DiseaseSpecialPopulations(
-            pediatric_considerations="No significant differences",
-            geriatric_considerations="No significant differences",
-            pregnancy_considerations="Generally safe",
-            gender_differences="No gender differences"
+            pediatric="No significant differences from adults",
+            geriatric="No significant differences from adults",
+            pregnancy="Generally safe during pregnancy"
         )
-        self.assertIn("Generally safe", dsp.pregnancy_considerations)
+        self.assertIn("Generally safe", dsp.pregnancy)
 
 
 # ==================== Living With Tests ====================
@@ -302,23 +310,19 @@ class TestDiseaseLivingWith(unittest.TestCase):
     def test_living_with_creation(self):
         """Test creating living with information."""
         dlw = DiseaseLivingWith(
-            quality_of_life="Usually good with treatment",
-            support_resources=["Support groups", "Educational materials"],
-            prognosis="Good with adherence",
-            complications=["Stroke", "Kidney disease"]
+            quality_of_life="Usually good with treatment and lifestyle modification",
+            support_resources=["Support groups", "Educational materials", "Online communities"]
         )
         self.assertIn("Support groups", dlw.support_resources)
-        self.assertIn("Stroke", dlw.complications)
+        self.assertEqual(len(dlw.support_resources), 3)
 
-    def test_living_with_no_complications(self):
-        """Test when disease has minimal complications."""
+    def test_living_with_no_support(self):
+        """Test when disease has minimal support resources."""
         dlw = DiseaseLivingWith(
-            quality_of_life="Excellent",
-            support_resources=[],
-            prognosis="Excellent",
-            complications=[]
+            quality_of_life="Excellent with proper management",
+            support_resources=[]
         )
-        self.assertEqual(len(dlw.complications), 0)
+        self.assertEqual(len(dlw.support_resources), 0)
 
 
 # ==================== Complete Disease Info Tests ====================
@@ -328,91 +332,94 @@ class TestDiseaseInfo(unittest.TestCase):
 
     def setUp(self):
         """Set up test data."""
+        risk_factors = RiskFactors(
+            modifiable=["smoking", "diet"],
+            non_modifiable=["age"],
+            environmental=["stress"]
+        )
+        dc = DiagnosticCriteria(
+            symptoms=["Headache", "Chest discomfort"],
+            physical_exam=["Elevated BP"],
+            laboratory_tests=["BP reading"],
+            imaging_studies=[]
+        )
         self.disease_data = {
             "identity": DiseaseIdentity(
-                disease_name="Hypertension",
-                alternative_names=["High blood pressure"],
-                icd10_codes=["I10"],
-                disease_category="Cardiovascular"
+                name="Hypertension",
+                synonyms=["High blood pressure"],
+                icd_10_code="I10"
             ),
             "background": DiseaseBackground(
                 definition="BP > 140/90",
-                pathophysiology="Increased resistance",
+                pathophysiology="Increased peripheral vascular resistance",
                 etiology="Multifactorial"
             ),
             "epidemiology": DiseaseEpidemiology(
                 prevalence="30%",
                 incidence="3M/year",
-                mortality_rate="5%",
-                affected_populations=["Adults"],
-                geographic_distribution="Worldwide"
+                risk_factors=risk_factors
             ),
             "clinical_presentation": DiseaseClinicalPresentation(
                 symptoms=["Headache"],
                 signs=["Elevated BP"],
-                severity_spectrum="Asymptomatic to severe"
+                natural_history="Progressive if untreated"
             ),
             "diagnosis": DiseaseDiagnosis(
-                diagnostic_criteria=DiagnosticCriteria(
-                    criteria=["BP > 140/90"],
-                    confirmation_tests=["BP reading"],
-                    differential_diagnoses=["White coat effect"]
-                )
+                diagnostic_criteria=dc,
+                differential_diagnosis=["White coat effect"]
             ),
             "management": DiseaseManagement(
-                treatment_options=["Medication"],
-                medication_classes=["ACE inhibitors"],
-                lifestyle_modifications=["Reduce sodium"],
-                monitoring_parameters=["BP"]
+                treatment_options=["Medication", "Lifestyle modification"],
+                prevention=["Reduce sodium", "Exercise"],
+                prognosis="Good with treatment"
             ),
             "research": DiseaseResearch(
-                current_research="Gene therapy",
-                recent_breakthroughs=["New drug"],
-                clinical_trials="5000 trials"
+                current_research="Gene therapy approaches",
+                recent_advancements="Improved management guidelines"
             ),
             "special_populations": DiseaseSpecialPopulations(
-                pediatric_considerations="Rare",
-                geriatric_considerations="Common",
-                pregnancy_considerations="Risk",
-                gender_differences="More in men"
+                pediatric="Rare in children",
+                geriatric="Common in elderly",
+                pregnancy="Can cause complications"
             ),
             "living_with": DiseaseLivingWith(
-                quality_of_life="Good",
-                support_resources=["Groups"],
-                prognosis="Good",
-                complications=["Stroke"]
+                quality_of_life="Good with treatment",
+                support_resources=["Support groups"]
             )
         }
 
     def test_disease_info_creation(self):
         """Test creating complete disease info."""
         di = DiseaseInfo(**self.disease_data)
-        self.assertEqual(di.identity.disease_name, "Hypertension")
+        self.assertEqual(di.identity.name, "Hypertension")
         self.assertEqual(di.epidemiology.prevalence, "30%")
 
     def test_disease_info_serialization(self):
         """Test disease info can be serialized to dict."""
         di = DiseaseInfo(**self.disease_data)
-        data_dict = di.dict()
+        data_dict = di.model_dump()
         self.assertIn("identity", data_dict)
         self.assertIn("background", data_dict)
-        self.assertEqual(data_dict["identity"]["disease_name"], "Hypertension")
+        self.assertEqual(data_dict["identity"]["name"], "Hypertension")
 
     def test_disease_info_json_serialization(self):
         """Test disease info can be serialized to JSON."""
         di = DiseaseInfo(**self.disease_data)
-        json_str = di.json()
+        json_str = di.model_dump_json()
         self.assertIn("Hypertension", json_str)
-        self.assertIn("Cardiovascular", json_str)
 
     def test_disease_info_missing_required_field(self):
         """Test disease info with missing required field."""
+        risk_factors = RiskFactors(
+            modifiable=[],
+            non_modifiable=["age"],
+            environmental=[]
+        )
         incomplete_data = {
             "identity": DiseaseIdentity(
-                disease_name="Test",
-                alternative_names=[],
-                icd10_codes=["Z00"],
-                disease_category="Other"
+                name="Test",
+                synonyms=[],
+                icd_10_code="Z00"
             ),
             "background": DiseaseBackground(
                 definition="Test",
@@ -431,12 +438,22 @@ class TestDiseaseInfoIntegration(unittest.TestCase):
 
     def test_hypertension_disease_model(self):
         """Test a realistic hypertension model."""
+        risk_factors = RiskFactors(
+            modifiable=["smoking", "alcohol", "salt intake", "obesity", "stress"],
+            non_modifiable=["age", "family history", "race"],
+            environmental=["air pollution", "socioeconomic status"]
+        )
+        dc = DiagnosticCriteria(
+            symptoms=["Often asymptomatic", "Headache", "Dizziness"],
+            physical_exam=["Elevated BP on 2+ occasions", "Left ventricular hypertrophy"],
+            laboratory_tests=["Blood pressure readings", "Serum creatinine", "Potassium"],
+            imaging_studies=["Echocardiogram"]
+        )
         hypertension = DiseaseInfo(
             identity=DiseaseIdentity(
-                disease_name="Essential Hypertension",
-                alternative_names=["Primary hypertension", "High blood pressure"],
-                icd10_codes=["I10"],
-                disease_category="Cardiovascular"
+                name="Essential Hypertension",
+                synonyms=["Primary hypertension", "High blood pressure"],
+                icd_10_code="I10"
             ),
             background=DiseaseBackground(
                 definition="Systemic arterial blood pressure ≥140/90 mmHg on ≥2 occasions",
@@ -446,32 +463,20 @@ class TestDiseaseInfoIntegration(unittest.TestCase):
             epidemiology=DiseaseEpidemiology(
                 prevalence="30-45% of adults in developed countries",
                 incidence="3-4 million new cases annually in USA",
-                mortality_rate="High: contributes to 7.5M deaths annually",
-                affected_populations=["Adults over 18", "African Americans", "Older adults"],
-                geographic_distribution="Higher in developed nations and urban areas"
+                risk_factors=risk_factors
             ),
             clinical_presentation=DiseaseClinicalPresentation(
                 symptoms=["Often asymptomatic", "Headache", "Dizziness", "Chest discomfort"],
                 signs=["Elevated systolic and/or diastolic BP", "Left ventricular hypertrophy"],
-                severity_spectrum="Often asymptomatic in early stages to severe with complications"
+                natural_history="Often asymptomatic in early stages to severe with complications"
             ),
             diagnosis=DiseaseDiagnosis(
-                diagnostic_criteria=DiagnosticCriteria(
-                    criteria=[
-                        "SBP ≥140 mmHg OR DBP ≥90 mmHg on 2+ occasions",
-                        "Different BP readings at different times"
-                    ],
-                    confirmation_tests=[
-                        "Home blood pressure monitoring",
-                        "24-hour ambulatory BP monitoring",
-                        "Office BP readings"
-                    ],
-                    differential_diagnoses=[
-                        "White coat hypertension",
-                        "Secondary hypertension",
-                        "Masked hypertension"
-                    ]
-                )
+                diagnostic_criteria=dc,
+                differential_diagnosis=[
+                    "White coat hypertension",
+                    "Secondary hypertension",
+                    "Masked hypertension"
+                ]
             ),
             management=DiseaseManagement(
                 treatment_options=[
@@ -479,71 +484,54 @@ class TestDiseaseInfoIntegration(unittest.TestCase):
                     "Pharmacological therapy",
                     "Combined approach"
                 ],
-                medication_classes=[
-                    "ACE inhibitors",
-                    "Angiotensin II receptor blockers",
-                    "Beta blockers",
-                    "Calcium channel blockers",
-                    "Diuretics"
-                ],
-                lifestyle_modifications=[
+                prevention=[
                     "DASH diet (sodium <2.3g/day)",
                     "Regular aerobic exercise (150 min/week)",
                     "Weight loss if overweight",
                     "Limit alcohol",
                     "Stress reduction"
                 ],
-                monitoring_parameters=[
-                    "Blood pressure at home and office",
-                    "Serum creatinine and eGFR",
-                    "Urine protein",
-                    "Potassium levels",
-                    "Lipid panel"
-                ]
+                prognosis="Excellent with medication adherence and lifestyle changes"
             ),
             research=DiseaseResearch(
                 current_research="Novel antihypertensive agents, gene therapy approaches",
-                recent_breakthroughs=[
-                    "SGLT2 inhibitors showing benefit in HTN with CKD",
-                    "Renal denervation techniques under investigation"
-                ],
-                clinical_trials="5000+ active trials worldwide"
+                recent_advancements="SGLT2 inhibitors showing benefit in HTN with CKD, Renal denervation techniques"
             ),
             special_populations=DiseaseSpecialPopulations(
-                pediatric_considerations="Rare; secondary causes must be ruled out",
-                geriatric_considerations="Very common; often undertreated; target BP 130-139/70-79",
-                pregnancy_considerations="High risk for pre-eclampsia; specific medication restrictions",
-                gender_differences="More common in men until age 65, then more common in women"
+                pediatric="Rare; secondary causes must be ruled out",
+                geriatric="Very common; often undertreated; target BP 130-139/70-79",
+                pregnancy="High risk for pre-eclampsia; specific medication restrictions"
             ),
             living_with=DiseaseLivingWith(
                 quality_of_life="Generally excellent with treatment adherence",
-                support_resources=["American Heart Association", "Patient education programs"],
-                prognosis="Excellent with medication adherence and lifestyle changes",
-                complications=[
-                    "Myocardial infarction",
-                    "Stroke",
-                    "Chronic kidney disease",
-                    "Heart failure",
-                    "Aortic dissection"
-                ]
+                support_resources=["American Heart Association", "Patient education programs", "Online support groups"]
             )
         )
 
         # Verify the model structure
-        self.assertEqual(hypertension.identity.disease_name, "Essential Hypertension")
-        self.assertIn("I10", hypertension.identity.icd10_codes)
-        self.assertGreater(len(hypertension.management.medication_classes), 3)
-        self.assertGreater(len(hypertension.living_with.complications), 3)
-        self.assertIn("stroke", hypertension.living_with.complications[1].lower())
+        self.assertEqual(hypertension.identity.name, "Essential Hypertension")
+        self.assertEqual(hypertension.identity.icd_10_code, "I10")
+        self.assertGreater(len(hypertension.management.prevention), 3)
+        self.assertGreater(len(hypertension.living_with.support_resources), 2)
 
     def test_disease_model_completeness(self):
         """Test that disease model captures all necessary information."""
+        risk_factors = RiskFactors(
+            modifiable=["factor1"],
+            non_modifiable=["factor2"],
+            environmental=["factor3"]
+        )
+        dc = DiagnosticCriteria(
+            symptoms=["symp"],
+            physical_exam=["exam"],
+            laboratory_tests=["test"],
+            imaging_studies=["imaging"]
+        )
         di = DiseaseInfo(
             identity=DiseaseIdentity(
-                disease_name="Test",
-                alternative_names=[],
-                icd10_codes=["Z00"],
-                disease_category="Other"
+                name="Test",
+                synonyms=[],
+                icd_10_code="Z00"
             ),
             background=DiseaseBackground(
                 definition="def",
@@ -553,44 +541,34 @@ class TestDiseaseInfoIntegration(unittest.TestCase):
             epidemiology=DiseaseEpidemiology(
                 prevalence="prev",
                 incidence="inc",
-                mortality_rate="mort",
-                affected_populations=["pop"],
-                geographic_distribution="geo"
+                risk_factors=risk_factors
             ),
             clinical_presentation=DiseaseClinicalPresentation(
                 symptoms=["symp"],
                 signs=["sign"],
-                severity_spectrum="spec"
+                natural_history="history"
             ),
             diagnosis=DiseaseDiagnosis(
-                diagnostic_criteria=DiagnosticCriteria(
-                    criteria=["crit"],
-                    confirmation_tests=["test"],
-                    differential_diagnoses=["diff"]
-                )
+                diagnostic_criteria=dc,
+                differential_diagnosis=["diff"]
             ),
             management=DiseaseManagement(
                 treatment_options=["treat"],
-                medication_classes=["med"],
-                lifestyle_modifications=["life"],
-                monitoring_parameters=["mon"]
+                prevention=["prev"],
+                prognosis="prog"
             ),
             research=DiseaseResearch(
                 current_research="curr",
-                recent_breakthroughs=["break"],
-                clinical_trials="trials"
+                recent_advancements="adv"
             ),
             special_populations=DiseaseSpecialPopulations(
-                pediatric_considerations="ped",
-                geriatric_considerations="ger",
-                pregnancy_considerations="preg",
-                gender_differences="gender"
+                pediatric="ped",
+                geriatric="ger",
+                pregnancy="preg"
             ),
             living_with=DiseaseLivingWith(
                 quality_of_life="qol",
-                support_resources=["support"],
-                prognosis="prog",
-                complications=["comp"]
+                support_resources=["support"]
             )
         )
 
