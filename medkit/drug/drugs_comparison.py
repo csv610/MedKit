@@ -207,12 +207,11 @@ class DrugsComparisonConfig(BaseModel):
     """Configuration for drugs comparison."""
     output_path: Optional[Path] = None
     verbosity: bool = False
-    prompt_style: PromptStyle = PromptStyle.DETAILE
+    prompt_style: PromptStyle = PromptStyle.DETAILED
     db_path: str = str(Path(__file__).parent.parent.parent / "storage" / "drugs_comparison.lmdb")
     db_capacity_mb: int = 500
     enable_cache: bool = True
     db_overwrite: bool = False  # If True, overwrite existing cached entries; if False, use cached entry if exists
-D
 
 
 class DrugsComparison:

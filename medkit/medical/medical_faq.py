@@ -53,7 +53,7 @@ KEY FEATURES AND COVERAGE AREAS:
 import json
 import argparse
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from medkit.core.medkit_client import MedKitClient

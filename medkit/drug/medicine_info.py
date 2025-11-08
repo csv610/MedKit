@@ -74,7 +74,7 @@ class MedicineInfoConfig:
     output_path: Optional[Path] = None
     output_dir: Path = field(default_factory=lambda: Path("outputs"))
     verbosity: bool = False  # If True, enable detailed debug logging
-    prompt_style: PromptStyle = PromptStyle.DETAILE
+    prompt_style: PromptStyle = PromptStyle.DETAILED
     db_path: str = field(default_factory=lambda: str(Path(__file__).parent.parent.parent / "storage" / "medicine_info.lmdb"))
     db_capacity_mb: int = 500
     enable_cache: bool = True
