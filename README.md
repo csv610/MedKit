@@ -1,10 +1,15 @@
-# MedKit: Medical Knowledge System
+# MedKit
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation Status](https://readthedocs.org/projects/medkit/badge/?version=latest)](https://medkit.readthedocs.io)
+MedKit is a comprehensive medical knowledge system powered by Google's Gemini AI. It provides programmatic access to authoritative medical information, enabling developers and healthcare professionals to build intelligent medical applications.
 
-A comprehensive medical information and reference system powered by Google's Gemini AI. MedKit provides programmatic access to medical knowledge, drug interactions, disease information, diagnostic tools, and clinical decision support.
+**What MedKit Does:**
+- Provides access to medical knowledge across disease information, anatomy, medical procedures, and surgical techniques
+- Offers pharmaceutical reference data including medicine information and drug interaction checking
+- Delivers diagnostic support tools with medical tests, examination guides, and decision-making frameworks
+- Includes mental health assessment and psychological support features
+- Caches all data locally for offline access and improved performance
+
+**Objective:** To make comprehensive medical knowledge programmatically accessible while maintaining accuracy, privacy, and ease of integration into healthcare applications.
 
 **Status:** Beta (v1.0.0) | **License:** MIT | **Python:** 3.8+
 
