@@ -1,362 +1,192 @@
-# MedKit GitHub Actions CI/CD Pipeline
+# MedKit
 
-Welcome to the MedKit CI/CD documentation! This directory contains all the configuration files for automated testing, code quality checks, documentation builds, and releases.
+A comprehensive medical knowledge system powered by Google's Gemini AI, providing programmatic access to authoritative medical information.
 
-## 📁 Directory Structure
+## What is MedKit?
 
-```
-.github/
-├── workflows/                    # GitHub Actions workflow definitions
-│   ├── tests.yml                 # Run tests across Python 3.8-3.12
-│   ├── code-quality.yml          # Linting, formatting, type-checking
-│   ├── docs.yml                  # Build & deploy Sphinx documentation
-│   ├── release.yml               # PyPI & Docker Hub publishing
-│   └── pull-request.yml          # PR validation and checks
-├── CODEOWNERS                     # Code review assignments
-├── dependabot.yml                # Automated dependency updates
-└── README.md                      # This file (navigation hub)
+MedKit gives developers and healthcare professionals instant access to medical knowledge through a Python API. Query disease information, drug interactions, diagnostic procedures, physical examination guides, and mental health assessments—all from a single integrated system.
 
-docs/ci-cd/                       # CI/CD documentation
-├── QUICK_START.md                # ⭐ 5-minute quick start
-├── SETUP_INSTRUCTIONS.md         # Detailed setup guide
-├── WORKFLOWS_SUMMARY.md          # Quick reference
-├── CI_CD_GUIDE.md                # Comprehensive documentation
-└── IMPLEMENTATION_SUMMARY.md     # Project metrics and overview
-```
+## Key Features
 
----
+**Medical Reference** — Disease information, anatomy, surgical procedures, implants, and herbal medicine
 
-## 🚀 Quick Start
+**Drug Database** — Medicine information, drug interactions, dosing, side effects, and alternatives
 
-### For New Setup
+**Diagnostic Tools** — Medical tests, examination guides for 27+ body systems, symptom analysis, and clinical decision support
 
-1. **Follow the setup instructions:**
-   - Read [`SETUP_INSTRUCTIONS.md`](../docs/ci-cd/SETUP_INSTRUCTIONS.md)
-   - Configure secrets in GitHub
-   - Enable branch protection rules
+**Mental Health** — Psychological assessments, structured interviews, conversational support, and crisis resources
 
-2. **Test locally:**
-   ```bash
-   pip install -e ".[dev]"
-   pytest tests/ -v --cov=medkit
-   ```
+**Offline Access** — LMDB-based caching for offline data access and improved performance
 
-3. **Make a test commit:**
-   ```bash
-   git add .
-   git commit -m "ci: add github actions ci/cd pipeline"
-   git push origin main
-   ```
+## Quick Start
 
-4. **Monitor in Actions tab:**
-   - Go to repository → **Actions**
-   - Watch workflows run automatically
-
-### For Existing Setup
-
-Jump to the relevant section:
-- **Quick reference:** [`WORKFLOWS_SUMMARY.md`](../docs/ci-cd/WORKFLOWS_SUMMARY.md)
-- **Detailed guide:** [`CI_CD_GUIDE.md`](../docs/ci-cd/CI_CD_GUIDE.md)
-- **Troubleshooting:** See [`SETUP_INSTRUCTIONS.md`](../docs/ci-cd/SETUP_INSTRUCTIONS.md)
-
----
-
-## 📋 What's Included
-
-### Workflows
-
-| Workflow | Trigger | What It Does |
-|----------|---------|-------------|
-| **Tests** | Push/PR | Runs pytest across Python 3.8-3.12 with coverage |
-| **Code Quality** | Push/PR | Linting, formatting, type-checking, security scans |
-| **Documentation** | Push/PR | Builds Sphinx docs, deploys to GitHub Pages |
-| **Release** | Tag push | Publishes to PyPI and Docker Hub |
-| **Pull Request** | PR created | Validates commits, checks tests/docs |
-
-### Configuration
-
-| File | Purpose |
-|------|---------|
-| `CODEOWNERS` | Assigns code reviewers by file/directory |
-| `dependabot.yml` | Automated weekly dependency updates |
-| `Dockerfile` | Multi-stage container build (optional) |
-| `.dockerignore` | Docker build exclusions |
-
-### Documentation (in `docs/ci-cd/`)
-
-| File | Content |
-|------|---------|
-| `QUICK_START.md` | 5-minute quick start |
-| `SETUP_INSTRUCTIONS.md` | Step-by-step setup guide |
-| `WORKFLOWS_SUMMARY.md` | Quick reference and checklist |
-| `CI_CD_GUIDE.md` | Comprehensive documentation |
-| `IMPLEMENTATION_SUMMARY.md` | Project metrics and overview |
-
----
-
-## 🔧 Workflows Overview
-
-### Tests Workflow
-- **Runs on:** Push to main/develop, PRs to main/develop
-- **Python versions:** 3.8, 3.9, 3.10, 3.11, 3.12
-- **Reports:** Coverage to Codecov, HTML artifacts
-- **Time:** ~2-3 minutes per version
+### Installation
 
 ```bash
-# Run locally
-pytest tests/ -v --cov=medkit --cov-report=html
+pip install git+https://github.com/csv610/medkit.git
 ```
 
-### Code Quality Workflow
-- **Runs on:** Push to main/develop, PRs to main/develop
-- **Checks:** Linting, formatting, import sorting, type-checking, security
-- **Tools:** flake8, black, isort, mypy, bandit, safety
-- **Time:** ~1-2 minutes
+### Basic Usage
+
+```python
+from medkit.medical.disease_info import get_disease_info
+from medkit.drug.medicine_info import get_medicine_info
+from medkit.drug.drug_drug_interaction import get_drug_interaction
+
+# Get disease information
+disease = get_disease_info("diabetes")
+print(disease.definition, disease.symptoms, disease.treatment)
+
+# Get medicine information
+medicine = get_medicine_info("aspirin")
+print(medicine.dosage, medicine.side_effects)
+
+# Check drug interactions
+interaction = get_drug_interaction("aspirin", "ibuprofen")
+print(interaction.severity, interaction.description)
+```
+
+### Command-Line Usage
 
 ```bash
-# Run locally
-black medkit/ cli/ tests/
-isort medkit/ cli/ tests/
-flake8 medkit/
-mypy medkit/ --ignore-missing-imports
+python cli/cli_disease_info.py diabetes
+python cli/cli_medicine_info.py aspirin
+python cli/cli_medical_anatomy.py heart
 ```
 
-### Documentation Workflow
-- **Runs on:** Push to main/develop, PRs to main/develop
-- **Builds:** Sphinx HTML documentation
-- **Deploys:** To GitHub Pages on main branch
-- **Time:** ~1 minute
+See [cli/README.md](cli/README.md) for more examples.
+
+## System Requirements
+
+- Python 3.8+
+- Google Gemini API key (get from https://ai.google.dev/)
+- 512MB RAM minimum (1GB recommended)
+- 500MB+ disk space for caching
+- Internet connection for initial use (caching enables offline access)
+
+## Configuration
+
+Set your API key:
 
 ```bash
-# Build locally
-cd docs && make clean html
+export GEMINI_API_KEY="your-api-key-here"
 ```
 
-### Release Workflow
-- **Runs on:** Tag push matching `v*` pattern
-- **Publishes:** To PyPI and Docker Hub
-- **Creates:** GitHub Release with artifacts
-- **Time:** ~2-3 minutes
+Or configure programmatically:
+
+```python
+from medkit.core.config import MedKitConfig
+
+config = MedKitConfig(
+    api_key="your-api-key",
+    model="gemini-2.5-flash",
+    temperature=0.3,
+    db_store=True,
+    db_path="~/.medkit/cache",
+    verbosity="info"
+)
+```
+
+## Project Structure
+
+```
+medkit/
+├── core/              # Configuration and API client
+├── medical/           # Disease, anatomy, specialties, procedures
+├── drug/              # Medicine info, interactions, comparisons
+├── diagnostics/       # Medical tests and diagnostic devices
+├── mental_health/     # Assessments, chat, interviews
+├── phyexams/          # Physical examination guides (27+ systems)
+├── utils/             # Caching, privacy, logging
+└── vistools/          # Visualization tools
+```
+
+## Documentation
+
+| Section | Location |
+|---------|----------|
+| Medical Reference | [docs/medical_ai/](docs/medical_ai/) |
+| Drug Database | [docs/drug_ai/](docs/drug_ai/) |
+| Diagnostic Tools | [docs/diagnostic_ai/](docs/diagnostic_ai/) |
+| Mental Health | [docs/psychology_ai/](docs/psychology_ai/) |
+| CLI Tools | [cli/README.md](cli/README.md) |
+| Full Docs | https://medkit.readthedocs.io |
+
+## Testing
 
 ```bash
-# Trigger release
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
+# Run all tests
+pytest tests/
+
+# Run with coverage
+pytest tests/ --cov=medkit
+
+# Using make
+make test
+make test-cov
+make test-parallel
 ```
 
-### Pull Request Workflow
-- **Runs on:** PR to main/develop
-- **Validates:** Conventional commits, encourages tests/docs
-- **Time:** ~30 seconds
+## Development
 
----
-
-## 🔐 Secrets Configuration
-
-### Required (if using PyPI)
-- `PYPI_API_TOKEN` - Get from https://pypi.org/account/
-
-### Optional
-- `GOOGLE_API_KEY` - For integration tests with Gemini API
-- `DOCKER_USERNAME` - Docker Hub username (for Docker publishing)
-- `DOCKER_PASSWORD` - Docker Hub password/token (for Docker publishing)
-
-**How to add:**
-1. Go to repository → Settings → Secrets and variables → Actions
-2. Click "New repository secret"
-3. Enter Name and Value
-4. Click "Add secret"
-
----
-
-## ✅ Setup Checklist
-
-- [ ] Read [`SETUP_INSTRUCTIONS.md`](../docs/ci-cd/SETUP_INSTRUCTIONS.md)
-- [ ] Add required secrets (if applicable)
-- [ ] Configure branch protection rules for `main`
-- [ ] Enable GitHub Pages (optional)
-- [ ] Enable Dependabot (optional)
-- [ ] Add status badges to README
-- [ ] Run workflows locally to test
-- [ ] Make test commit to trigger workflows
-- [ ] Review workflow logs
-
----
-
-## 📊 Monitoring & Visibility
-
-### View Workflow Runs
-1. Go to repository → **Actions**
-2. Click on workflow name
-3. Select a run to see details
-
-### Add Status Badges
-```markdown
-[![Tests](https://github.com/csverma610/medkit/actions/workflows/tests.yml/badge.svg)](https://github.com/csverma610/medkit/actions)
-[![Code Quality](https://github.com/csverma610/medkit/actions/workflows/code-quality.yml/badge.svg)](https://github.com/csverma610/medkit/actions)
-[![Documentation](https://github.com/csverma610/medkit/actions/workflows/docs.yml/badge.svg)](https://github.com/csverma610/medkit/actions)
-```
-
-### Coverage Reports
-- **Codecov:** https://codecov.io/gh/csverma610/medkit
-- **Local:** `pytest --cov-report=html` then open `htmlcov/index.html`
-
-### Documentation
-- **GitHub Pages:** https://csverma610.github.io/medkit/
-- **Local:** `cd docs && make html`
-
----
-
-## 🔨 Local Development Workflow
+### Setup
 
 ```bash
-# 1. Make changes
-# ... edit files ...
-
-# 2. Run tests locally
-pytest tests/ -v --cov=medkit
-
-# 3. Format code
-black medkit/ cli/ tests/
-isort medkit/ cli/ tests/
-
-# 4. Check code quality
-flake8 medkit/
-mypy medkit/ --ignore-missing-imports
-
-# 5. Commit with conventional message
-git commit -m "feat: describe your changes"
-
-# 6. Push to feature branch
-git push origin feature-branch
-
-# 7. Create pull request on GitHub
-# ... workflow checks run automatically ...
-
-# 8. After merge, create release (optional)
-git tag -a v1.2.3 -m "Release v1.2.3"
-git push origin v1.2.3
+git clone https://github.com/csv610/medkit.git
+cd medkit
+pip install -e ".[dev]"
 ```
 
----
-
-## 📚 Documentation Files
-
-See `docs/ci-cd/` folder for all CI/CD documentation:
-
-### [`QUICK_START.md`](../docs/ci-cd/QUICK_START.md)
-Get started in 5 minutes with:
-- Quick setup steps
-- Copy-paste commands
-- Common issues and solutions
-
-### [`SETUP_INSTRUCTIONS.md`](../docs/ci-cd/SETUP_INSTRUCTIONS.md)
-Complete step-by-step setup guide:
-- Configuring secrets
-- Setting up branch protection
-- Enabling GitHub Pages
-- Configuring Dependabot
-- Adding status badges
-- Troubleshooting
-
-### [`WORKFLOWS_SUMMARY.md`](../docs/ci-cd/WORKFLOWS_SUMMARY.md)
-Quick reference guide:
-- Workflow table
-- Common operations
-- Checklist
-- Environment variables
-- Troubleshooting tips
-
-### [`CI_CD_GUIDE.md`](../docs/ci-cd/CI_CD_GUIDE.md)
-Comprehensive detailed guide:
-- Full workflow descriptions
-- Configuration file explanations
-- Secrets and authentication
-- Status badges
-- Advanced customization
-- Best practices
-
-### [`IMPLEMENTATION_SUMMARY.md`](../docs/ci-cd/IMPLEMENTATION_SUMMARY.md)
-Project overview and metrics:
-- Implementation status
-- Integration points
-- Customization options
-- Support and maintenance
-
----
-
-## 🐛 Troubleshooting
-
-### Workflows not running
-- [ ] Verify branch name (main/develop)
-- [ ] Check Actions are enabled in Settings
-- [ ] Wait a few minutes for GitHub to register
-
-### Tests failing
-- [ ] Run locally: `pytest tests/ -v`
-- [ ] Check Python version compatibility
-- [ ] Review detailed logs in Actions tab
-
-### Secrets not working
-- [ ] Verify secret name matches exactly
-- [ ] Secrets are case-sensitive
-- [ ] Wait a few minutes after adding
-
-### Documentation not deploying
-- [ ] Verify GitHub Pages is enabled
-- [ ] Check branch is set to `gh-pages`
-- [ ] View docs build logs in Actions tab
-
-See [`SETUP_INSTRUCTIONS.md`](../docs/ci-cd/SETUP_INSTRUCTIONS.md) for more troubleshooting.
-
----
-
-## 🚢 Making a Release
+### Common Tasks
 
 ```bash
-# Tag and push (triggers Release workflow)
-git tag -a v1.2.3 -m "Release v1.2.3"
-git push origin v1.2.3
+make lint              # Code quality checks
+make format            # Format code
+make typecheck         # Type checking
+make security          # Security scan
+make docs              # Build documentation
+make ready             # Full CI checks
 ```
 
-The Release workflow will:
-- Build distribution packages
-- Create GitHub Release with artifacts
-- Publish to PyPI (if token configured)
-- Push Docker image (if credentials configured)
+## Important Disclaimers
+
+**Medical Disclaimer:** This tool is for informational purposes only and should not replace professional medical advice. Always consult qualified healthcare professionals.
+
+**Accuracy:** Medical information evolves constantly. Verify all information with current medical literature before use.
+
+**Privacy:** Users are responsible for HIPAA compliance and data protection. MedKit provides privacy-aware features but does not guarantee compliance.
+
+**Emergency:** For medical emergencies, contact emergency services immediately. Do not use this tool for emergency diagnosis.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Citation
+
+```bibtex
+@software{medkit2024,
+  title={MedKit: Medical Information and Reference System},
+  author={Your Name},
+  year={2024},
+  url={https://github.com/csv610/medkit}
+}
+```
+
+## Support
+
+- **Documentation:** https://medkit.readthedocs.io
+- **Issues:** https://github.com/csv610/medkit/issues
+- **Discussions:** https://github.com/csv610/medkit/discussions
+
+## Acknowledgments
+
+- Google Gemini AI (https://ai.google.dev/)
+- RxNorm API (https://www.nlm.nih.gov/research/umls/rxnorm/)
+- Pydantic, LMDB, NetworkX, Matplotlib, Sphinx
 
 ---
 
-## 📖 Additional Resources
+**Last Updated:** December 2024
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Pytest Documentation](https://docs.pytest.org/)
-- [Black Code Formatter](https://black.readthedocs.io/)
-- [Flake8 Linter](https://flake8.pycqa.org/)
-- [MyPy Type Checker](https://mypy.readthedocs.io/)
-- [Sphinx Documentation](https://www.sphinx-doc.org/)
-
----
-
-## 🎯 Next Steps
-
-1. **Read:** [`QUICK_START.md`](../docs/ci-cd/QUICK_START.md) or [`SETUP_INSTRUCTIONS.md`](../docs/ci-cd/SETUP_INSTRUCTIONS.md)
-2. **Configure:** GitHub secrets and branch protection
-3. **Test:** Run workflows locally and on GitHub
-4. **Monitor:** Watch Actions tab as you develop
-5. **Iterate:** Workflows run on every push and PR
-
----
-
-## ❓ Questions?
-
-1. Check relevant documentation above
-2. Review workflow logs in Actions tab
-3. Consult GitHub Actions documentation
-4. Open an issue on GitHub with details
-
----
-
-**Happy coding! 🚀**
-
-Last updated: 2025-11-08
+For the latest information, visit: https://github.com/csv610/medkit
